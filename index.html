@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>לוח בקרה למלאי ולוגיסטיקה</title>
+  <style>
+    :root {
+      --bg: #f4f6fa;
+      --card: #ffffff;
+      --text: #1b2330;
+      --muted: #5c6878;
+      --line: #dfe4ec;
+      --accent: #1f5eff;
+      --pending: #b8860b;
+      --transit: #1f5eff;
+      --delivered: #1d8a4e;
+      --failed: #c62828;
+      --low-bg: #fdecea;
+      --low-text: #8e1b1b;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 24px;
+      background: var(--card);
+      border-bottom: 1px solid var(--line);
+    }
+    header h1 { margin: 0; font-size: 1.25rem; }
+    header .date { color: var(--muted); font-size: 0.95rem; }
+    main { padding: 16px 24px 40px; max-width: 1200px; margin: 0 auto; }
+    section { margin-top: 24px; }
+    h2 { font-size: 1.05rem; margin: 0 0 10px; color: var(--muted); font-weight: 600; }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 14px 16px;
+      border-inline-start: 5px solid var(--accent);
+    }
+    .card .label { color: var(--muted); font-size: 0.9rem; }
+    .card .value { font-size: 2rem; font-weight: 700; line-height: 1.1; margin-top: 4px; }
+    .card[data-status="pending"] { border-inline-start-color: var(--pending); }
+    .card[data-status="in_transit"] { border-inline-start-color: var(--transit); }
+    .card[data-status="delivered"] { border-inline-start-color: var(--delivered); }
+    .card[data-status="failed"] { border-inline-start-color: var(--failed); }
+    @media (max-width: 600px) {
+      header, main { padding-inline: 16px; }
+      .cards { grid-template-columns: repeat(2, 1fr); }
+      .card .value { font-size: 1.6rem; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>לוח בקרה למלאי ולוגיסטיקה</h1>
+    <span class="date" id="date"></span>
+  </header>
+  <main>
+    <section id="summary" aria-labelledby="summary-title">
+      <h2 id="summary-title">משלוחי היום לפי סטטוס</h2>
+      <div class="cards" id="status-cards"></div>
+    </section>
+  </main>
+  <script type="module" src="src/app.js"></script>
+</body>
+</html>
