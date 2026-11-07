@@ -1,0 +1,579 @@
+{
+  "date": "2026-11-08",
+  "warehouses": [
+    {
+      "id": "center",
+      "name": "מרכז"
+    },
+    {
+      "id": "north",
+      "name": "צפון"
+    },
+    {
+      "id": "south",
+      "name": "דרום"
+    }
+  ],
+  "contractors": [
+    {
+      "id": "c1",
+      "name": "דרור משלוחים"
+    },
+    {
+      "id": "c2",
+      "name": "אקספרס צפון"
+    },
+    {
+      "id": "c3",
+      "name": "שליחי הדרום"
+    },
+    {
+      "id": "c4",
+      "name": "מהיר בע\"מ"
+    }
+  ],
+  "inventory": [
+    {
+      "sku": "SKU-001",
+      "name": "קרטון קטן",
+      "warehouseId": "center",
+      "quantity": 30,
+      "minimum": 20
+    },
+    {
+      "sku": "SKU-002",
+      "name": "קרטון בינוני",
+      "warehouseId": "north",
+      "quantity": 50,
+      "minimum": 27
+    },
+    {
+      "sku": "SKU-003",
+      "name": "קרטון גדול",
+      "warehouseId": "south",
+      "quantity": 27,
+      "minimum": 34
+    },
+    {
+      "sku": "SKU-004",
+      "name": "מעטפה מרופדת",
+      "warehouseId": "center",
+      "quantity": 90,
+      "minimum": 41
+    },
+    {
+      "sku": "SKU-005",
+      "name": "סרט הדבקה",
+      "warehouseId": "north",
+      "quantity": 110,
+      "minimum": 48
+    },
+    {
+      "sku": "SKU-006",
+      "name": "ניילון בועות",
+      "warehouseId": "south",
+      "quantity": 55,
+      "minimum": 55
+    },
+    {
+      "sku": "SKU-007",
+      "name": "מדבקות משלוח",
+      "warehouseId": "center",
+      "quantity": 150,
+      "minimum": 62
+    },
+    {
+      "sku": "SKU-008",
+      "name": "מדבקות שביר",
+      "warehouseId": "north",
+      "quantity": 57,
+      "minimum": 69
+    },
+    {
+      "sku": "SKU-009",
+      "name": "אזיקונים",
+      "warehouseId": "south",
+      "quantity": 110,
+      "minimum": 76
+    },
+    {
+      "sku": "SKU-010",
+      "name": "שקית משלוח S",
+      "warehouseId": "center",
+      "quantity": 70,
+      "minimum": 23
+    },
+    {
+      "sku": "SKU-011",
+      "name": "שקית משלוח L",
+      "warehouseId": "north",
+      "quantity": 90,
+      "minimum": 30
+    },
+    {
+      "sku": "SKU-012",
+      "name": "נייר מילוי",
+      "warehouseId": "south",
+      "quantity": 31,
+      "minimum": 37
+    },
+    {
+      "sku": "SKU-013",
+      "name": "דיו למדפסת מדבקות",
+      "warehouseId": "center",
+      "quantity": 130,
+      "minimum": 44
+    },
+    {
+      "sku": "SKU-014",
+      "name": "כפפות",
+      "warehouseId": "north",
+      "quantity": 70,
+      "minimum": 51
+    },
+    {
+      "sku": "SKU-015",
+      "name": "משטח עץ",
+      "warehouseId": "south",
+      "quantity": 90,
+      "minimum": 58
+    },
+    {
+      "sku": "SKU-016",
+      "name": "רצועות קשירה",
+      "warehouseId": "center",
+      "quantity": 110,
+      "minimum": 65
+    },
+    {
+      "sku": "SKU-017",
+      "name": "קופסת מסמכים",
+      "warehouseId": "north",
+      "quantity": 61,
+      "minimum": 72
+    },
+    {
+      "sku": "SKU-018",
+      "name": "סכין יפני",
+      "warehouseId": "south",
+      "quantity": 150,
+      "minimum": 79
+    },
+    {
+      "sku": "SKU-019",
+      "name": "טופס משלוח",
+      "warehouseId": "center",
+      "quantity": 110,
+      "minimum": 26
+    },
+    {
+      "sku": "SKU-020",
+      "name": "עט",
+      "warehouseId": "north",
+      "quantity": 50,
+      "minimum": 33
+    }
+  ],
+  "shipments": [
+    {
+      "id": "SH-1000",
+      "customer": "כהן",
+      "warehouseId": "center",
+      "contractorId": "c1",
+      "status": "pending",
+      "createdAt": "2026-11-08T07:00:00"
+    },
+    {
+      "id": "SH-1001",
+      "customer": "לוי",
+      "warehouseId": "north",
+      "contractorId": "c4",
+      "status": "pending",
+      "createdAt": "2026-11-08T12:17:00"
+    },
+    {
+      "id": "SH-1002",
+      "customer": "מזרחי",
+      "warehouseId": "south",
+      "contractorId": "c3",
+      "status": "pending",
+      "createdAt": "2026-11-08T17:34:00"
+    },
+    {
+      "id": "SH-1003",
+      "customer": "פרץ",
+      "warehouseId": "center",
+      "contractorId": "c2",
+      "status": "pending",
+      "createdAt": "2026-11-08T11:51:00"
+    },
+    {
+      "id": "SH-1004",
+      "customer": "ביטון",
+      "warehouseId": "north",
+      "contractorId": "c1",
+      "status": "pending",
+      "createdAt": "2026-11-08T16:08:00"
+    },
+    {
+      "id": "SH-1005",
+      "customer": "אברהם",
+      "warehouseId": "south",
+      "contractorId": "c4",
+      "status": "pending",
+      "createdAt": "2026-11-08T10:25:00"
+    },
+    {
+      "id": "SH-1006",
+      "customer": "דהן",
+      "warehouseId": "center",
+      "contractorId": "c3",
+      "status": "pending",
+      "createdAt": "2026-11-08T15:42:00"
+    },
+    {
+      "id": "SH-1007",
+      "customer": "אזולאי",
+      "warehouseId": "north",
+      "contractorId": "c2",
+      "status": "pending",
+      "createdAt": "2026-11-08T09:59:00"
+    },
+    {
+      "id": "SH-1008",
+      "customer": "חדד",
+      "warehouseId": "south",
+      "contractorId": "c1",
+      "status": "pending",
+      "createdAt": "2026-11-08T14:16:00"
+    },
+    {
+      "id": "SH-1009",
+      "customer": "עמר",
+      "warehouseId": "center",
+      "contractorId": "c4",
+      "status": "pending",
+      "createdAt": "2026-11-08T08:33:00"
+    },
+    {
+      "id": "SH-1010",
+      "customer": "גבאי",
+      "warehouseId": "north",
+      "contractorId": "c3",
+      "status": "pending",
+      "createdAt": "2026-11-08T13:50:00"
+    },
+    {
+      "id": "SH-1011",
+      "customer": "מלכה",
+      "warehouseId": "south",
+      "contractorId": "c2",
+      "status": "pending",
+      "createdAt": "2026-11-08T07:07:00"
+    },
+    {
+      "id": "SH-1012",
+      "customer": "ברוך",
+      "warehouseId": "center",
+      "contractorId": "c1",
+      "status": "in_transit",
+      "createdAt": "2026-11-08T12:24:00"
+    },
+    {
+      "id": "SH-1013",
+      "customer": "שמעוני",
+      "warehouseId": "north",
+      "contractorId": "c4",
+      "status": "in_transit",
+      "createdAt": "2026-11-08T17:41:00"
+    },
+    {
+      "id": "SH-1014",
+      "customer": "טל",
+      "warehouseId": "south",
+      "contractorId": "c3",
+      "status": "in_transit",
+      "createdAt": "2026-11-08T11:58:00"
+    },
+    {
+      "id": "SH-1015",
+      "customer": "כהן 2",
+      "warehouseId": "center",
+      "contractorId": "c2",
+      "status": "in_transit",
+      "createdAt": "2026-11-08T16:15:00"
+    },
+    {
+      "id": "SH-1016",
+      "customer": "לוי 2",
+      "warehouseId": "north",
+      "contractorId": "c1",
+      "status": "in_transit",
+      "createdAt": "2026-11-08T10:32:00"
+    },
+    {
+      "id": "SH-1017",
+      "customer": "מזרחי 2",
+      "warehouseId": "south",
+      "contractorId": "c4",
+      "status": "in_transit",
+      "createdAt": "2026-11-08T15:49:00"
+    },
+    {
+      "id": "SH-1018",
+      "customer": "פרץ 2",
+      "warehouseId": "center",
+      "contractorId": "c3",
+      "status": "in_transit",
+      "createdAt": "2026-11-08T09:06:00"
+    },
+    {
+      "id": "SH-1019",
+      "customer": "ביטון 2",
+      "warehouseId": "north",
+      "contractorId": "c2",
+      "status": "in_transit",
+      "createdAt": "2026-11-08T14:23:00"
+    },
+    {
+      "id": "SH-1020",
+      "customer": "אברהם 2",
+      "warehouseId": "south",
+      "contractorId": "c1",
+      "status": "in_transit",
+      "createdAt": "2026-11-08T08:40:00"
+    },
+    {
+      "id": "SH-1021",
+      "customer": "דהן 2",
+      "warehouseId": "center",
+      "contractorId": "c4",
+      "status": "in_transit",
+      "createdAt": "2026-11-08T13:57:00"
+    },
+    {
+      "id": "SH-1022",
+      "customer": "אזולאי 2",
+      "warehouseId": "north",
+      "contractorId": "c3",
+      "status": "in_transit",
+      "createdAt": "2026-11-08T07:14:00"
+    },
+    {
+      "id": "SH-1023",
+      "customer": "חדד 2",
+      "warehouseId": "south",
+      "contractorId": "c2",
+      "status": "in_transit",
+      "createdAt": "2026-11-08T12:31:00"
+    },
+    {
+      "id": "SH-1024",
+      "customer": "עמר 2",
+      "warehouseId": "center",
+      "contractorId": "c1",
+      "status": "in_transit",
+      "createdAt": "2026-11-08T17:48:00"
+    },
+    {
+      "id": "SH-1025",
+      "customer": "גבאי 2",
+      "warehouseId": "north",
+      "contractorId": "c4",
+      "status": "in_transit",
+      "createdAt": "2026-11-08T11:05:00"
+    },
+    {
+      "id": "SH-1026",
+      "customer": "מלכה 2",
+      "warehouseId": "south",
+      "contractorId": "c3",
+      "status": "in_transit",
+      "createdAt": "2026-11-08T16:22:00"
+    },
+    {
+      "id": "SH-1027",
+      "customer": "ברוך 2",
+      "warehouseId": "center",
+      "contractorId": "c2",
+      "status": "delivered",
+      "createdAt": "2026-11-08T10:39:00"
+    },
+    {
+      "id": "SH-1028",
+      "customer": "שמעוני 2",
+      "warehouseId": "north",
+      "contractorId": "c1",
+      "status": "delivered",
+      "createdAt": "2026-11-08T15:56:00"
+    },
+    {
+      "id": "SH-1029",
+      "customer": "טל 2",
+      "warehouseId": "south",
+      "contractorId": "c4",
+      "status": "delivered",
+      "createdAt": "2026-11-08T09:13:00"
+    },
+    {
+      "id": "SH-1030",
+      "customer": "כהן 3",
+      "warehouseId": "center",
+      "contractorId": "c3",
+      "status": "delivered",
+      "createdAt": "2026-11-08T14:30:00"
+    },
+    {
+      "id": "SH-1031",
+      "customer": "לוי 3",
+      "warehouseId": "north",
+      "contractorId": "c2",
+      "status": "delivered",
+      "createdAt": "2026-11-08T08:47:00"
+    },
+    {
+      "id": "SH-1032",
+      "customer": "מזרחי 3",
+      "warehouseId": "south",
+      "contractorId": "c1",
+      "status": "delivered",
+      "createdAt": "2026-11-08T13:04:00"
+    },
+    {
+      "id": "SH-1033",
+      "customer": "פרץ 3",
+      "warehouseId": "center",
+      "contractorId": "c4",
+      "status": "delivered",
+      "createdAt": "2026-11-08T07:21:00"
+    },
+    {
+      "id": "SH-1034",
+      "customer": "ביטון 3",
+      "warehouseId": "north",
+      "contractorId": "c3",
+      "status": "delivered",
+      "createdAt": "2026-11-08T12:38:00"
+    },
+    {
+      "id": "SH-1035",
+      "customer": "אברהם 3",
+      "warehouseId": "south",
+      "contractorId": "c2",
+      "status": "delivered",
+      "createdAt": "2026-11-08T17:55:00"
+    },
+    {
+      "id": "SH-1036",
+      "customer": "דהן 3",
+      "warehouseId": "center",
+      "contractorId": "c1",
+      "status": "delivered",
+      "createdAt": "2026-11-08T11:12:00"
+    },
+    {
+      "id": "SH-1037",
+      "customer": "אזולאי 3",
+      "warehouseId": "north",
+      "contractorId": "c4",
+      "status": "delivered",
+      "createdAt": "2026-11-08T16:29:00"
+    },
+    {
+      "id": "SH-1038",
+      "customer": "חדד 3",
+      "warehouseId": "south",
+      "contractorId": "c3",
+      "status": "delivered",
+      "createdAt": "2026-11-08T10:46:00"
+    },
+    {
+      "id": "SH-1039",
+      "customer": "עמר 3",
+      "warehouseId": "center",
+      "contractorId": "c2",
+      "status": "delivered",
+      "createdAt": "2026-11-08T15:03:00"
+    },
+    {
+      "id": "SH-1040",
+      "customer": "גבאי 3",
+      "warehouseId": "north",
+      "contractorId": "c1",
+      "status": "delivered",
+      "createdAt": "2026-11-08T09:20:00"
+    },
+    {
+      "id": "SH-1041",
+      "customer": "מלכה 3",
+      "warehouseId": "south",
+      "contractorId": "c4",
+      "status": "delivered",
+      "createdAt": "2026-11-08T14:37:00"
+    },
+    {
+      "id": "SH-1042",
+      "customer": "ברוך 3",
+      "warehouseId": "center",
+      "contractorId": "c3",
+      "status": "delivered",
+      "createdAt": "2026-11-08T08:54:00"
+    },
+    {
+      "id": "SH-1043",
+      "customer": "שמעוני 3",
+      "warehouseId": "north",
+      "contractorId": "c2",
+      "status": "delivered",
+      "createdAt": "2026-11-08T13:11:00"
+    },
+    {
+      "id": "SH-1044",
+      "customer": "טל 3",
+      "warehouseId": "south",
+      "contractorId": "c1",
+      "status": "delivered",
+      "createdAt": "2026-11-08T07:28:00"
+    },
+    {
+      "id": "SH-1045",
+      "customer": "כהן 4",
+      "warehouseId": "center",
+      "contractorId": "c4",
+      "status": "failed",
+      "createdAt": "2026-11-08T12:45:00"
+    },
+    {
+      "id": "SH-1046",
+      "customer": "לוי 4",
+      "warehouseId": "north",
+      "contractorId": "c3",
+      "status": "failed",
+      "createdAt": "2026-11-08T17:02:00"
+    },
+    {
+      "id": "SH-1047",
+      "customer": "מזרחי 4",
+      "warehouseId": "south",
+      "contractorId": "c2",
+      "status": "failed",
+      "createdAt": "2026-11-08T11:19:00"
+    },
+    {
+      "id": "SH-1048",
+      "customer": "פרץ 4",
+      "warehouseId": "center",
+      "contractorId": "c1",
+      "status": "failed",
+      "createdAt": "2026-11-08T16:36:00"
+    },
+    {
+      "id": "SH-1049",
+      "customer": "ביטון 4",
+      "warehouseId": "north",
+      "contractorId": "c4",
+      "status": "failed",
+      "createdAt": "2026-11-08T10:53:00"
+    }
+  ]
+}

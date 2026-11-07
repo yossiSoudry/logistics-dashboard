@@ -22,7 +22,7 @@
 - `src/logic.js` – חישובים טהורים על הנתונים (סיכום, סינון, מלאי נמוך). בלי DOM. זה מה שנבדק.
 - `src/app.js` – מחבר את הנתונים ל-DOM.
 - `data/mock-data.json` – נתוני הדמה.
-- `test/` – בדיקות, רצות עם `node --test`.
+- `test/` – בדיקות, רצות עם `npm test` (`node --test test/*.test.js`).
 
 ## כללים
 
