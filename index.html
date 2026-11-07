@@ -85,6 +85,7 @@
     .bar { width: 90px; height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
     .bar > span { display: block; height: 100%; background: var(--delivered); }
     .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .grid-2 > section { min-width: 0; }
     @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
     @media (max-width: 600px) {
       header, main { padding-inline: 16px; }
