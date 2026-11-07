@@ -70,6 +70,11 @@
     tr.low td { background: var(--low-bg); color: var(--low-text); }
     tr.low td.qty { font-weight: 700; }
     .empty { color: var(--muted); padding: 14px; text-align: center; }
+    .rate { display: inline-flex; align-items: center; gap: 8px; }
+    .bar { width: 90px; height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; }
+    .bar > span { display: block; height: 100%; background: var(--delivered); }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
     @media (max-width: 600px) {
       header, main { padding-inline: 16px; }
       .cards { grid-template-columns: repeat(2, 1fr); }
@@ -88,6 +93,19 @@
       <div class="cards" id="status-cards"></div>
     </section>
 
+    <div class="grid-2">
+    <section id="contractors" aria-labelledby="contractors-title">
+      <h2 id="contractors-title">ביצועי קבלנים היום</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>קבלן</th><th>משלוחים</th><th>נמסרו</th><th>אחוז מסירה</th></tr>
+          </thead>
+          <tbody id="contractor-rows"></tbody>
+        </table>
+      </div>
+    </section>
+
     <section id="inventory" aria-labelledby="inventory-title">
       <h2 id="inventory-title">מלאי לפי מחסן</h2>
       <div class="table-wrap">
@@ -99,6 +117,7 @@
         </table>
       </div>
     </section>
+    </div>
   </main>
   <script type="module" src="src/app.js"></script>
 </body>
