@@ -19,6 +19,7 @@ export interface Shipment {
 }
 export interface DashboardData {
   date: string
+  now: string
   warehouses: Warehouse[]
   contractors: Contractor[]
   inventory: InventoryItem[]

@@ -1,16 +1,24 @@
-import { useMemo, useState } from "react"
-import { Boxes } from "lucide-react"
+import { Suspense, lazy, useEffect, useMemo, useState } from "react"
 import rawData from "../data/mock-data.json"
-import { applyFilters } from "@/logic.js"
+import { applyFilters, stuckShipments } from "@/logic.js"
+import { ROUTES } from "@/lib/routes.js"
 import { useTheme } from "@/hooks/use-theme"
+import { useRoute, type RouteId } from "@/hooks/use-route"
+import { Separator } from "@/components/ui/separator"
+import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import { AppSidebar } from "@/components/dashboard/app-sidebar"
 import { DashboardFilters } from "@/components/dashboard/filters"
 import { ThemeToggle } from "@/components/dashboard/theme-toggle"
-import { StatusCards } from "@/components/dashboard/status-cards"
-import { ContractorsCard } from "@/components/dashboard/contractors-card"
-import { InventoryCard } from "@/components/dashboard/inventory-card"
+import { OverviewPage } from "@/pages/overview-page"
+import { ShipmentsPage } from "@/pages/shipments-page"
+import { StuckPage, type StuckShipment } from "@/pages/stuck-page"
+import { Skeleton } from "@/components/ui/skeleton"
 import type { DashboardData, Filters } from "@/types"
 
 const data = rawData as DashboardData
+
+// הגרף (Recharts) נטען רק כשנכנסים לעמוד, כדי שהסקירה תיטען מהר בטלפון
+const HourlyPage = lazy(() => import("@/pages/hourly-page").then((m) => ({ default: m.HourlyPage })))
 
 const dateLabel = new Date(data.date).toLocaleDateString("he-IL", {
   weekday: "long",
@@ -19,68 +27,84 @@ const dateLabel = new Date(data.date).toLocaleDateString("he-IL", {
   year: "numeric",
 })
 
+const shortDate = new Date(data.date).toLocaleDateString("he-IL", { day: "numeric", month: "long" })
+
+// בטאבלט הסרגל מתחיל מכווץ לאייקונים, כדי להשאיר מקום לתוכן
+const startOpen = typeof window === "undefined" || window.matchMedia("(min-width: 1024px)").matches
+
 export default function App() {
+  // הסינון חי כאן, מעל העמודים, ולכן מעבר בין עמודים לא מאפס אותו
   const [filters, setFilters] = useState<Filters>({ warehouseId: "all", contractorId: "all" })
   const { preference, setPreference } = useTheme()
+  const route = useRoute()
   const view = useMemo(() => applyFilters(data, filters) as DashboardData, [filters])
+  const stuck = useMemo(() => stuckShipments(view.shipments, data.now) as StuckShipment[], [view])
+  const label = ROUTES.find((r) => r.id === route)?.label ?? ""
+
+  useEffect(() => {
+    document.title = `${label} · לוח בקרה למלאי ולוגיסטיקה`
+    window.scrollTo(0, 0)
+  }, [route, label])
 
   return (
-    <div className="min-h-svh bg-background">
-      <header className="sticky top-0 z-30 border-b bg-background/85 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl flex-col gap-3 px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex min-w-0 items-center gap-3">
-              <span
-                className="grid size-10 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground"
-                aria-hidden
-              >
-                <Boxes className="size-5" />
-              </span>
-              <div className="min-w-0">
-                <h1 className="truncate text-base font-bold sm:text-lg">לוח בקרה למלאי ולוגיסטיקה</h1>
-                <p className="text-xs text-muted-foreground sm:text-sm">{dateLabel}</p>
+    <SidebarProvider defaultOpen={startOpen}>
+      <AppSidebar route={route} stuckCount={stuck.length} dateLabel={shortDate} />
+      <SidebarInset className="min-w-0">
+        <header className="sticky top-0 z-30 border-b bg-background/85 backdrop-blur">
+          <div className="flex flex-col gap-3 px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex min-w-0 items-center gap-2">
+                <SidebarTrigger className="-ms-1" aria-label="פתיחה וסגירה של סרגל הצד" />
+                <Separator orientation="vertical" className="me-1 data-[orientation=vertical]:h-6" />
+                <div className="min-w-0">
+                  <h1 className="truncate text-base font-bold sm:text-lg" data-page={route}>
+                    {label}
+                  </h1>
+                  <p className="text-xs text-muted-foreground sm:text-sm">{dateLabel}</p>
+                </div>
+              </div>
+              <div className="lg:hidden">
+                <ThemeToggle preference={preference} onChange={setPreference} />
               </div>
             </div>
-            <div className="lg:hidden">
-              <ThemeToggle preference={preference} onChange={setPreference} />
+            <div className="flex items-center gap-3">
+              <div className="min-w-0 flex-1 lg:flex-none">
+                <DashboardFilters
+                  filters={filters}
+                  warehouses={data.warehouses}
+                  contractors={data.contractors}
+                  onChange={setFilters}
+                />
+              </div>
+              <div className="max-lg:hidden">
+                <ThemeToggle preference={preference} onChange={setPreference} />
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="min-w-0 flex-1 lg:flex-none">
-              <DashboardFilters
-                filters={filters}
-                warehouses={data.warehouses}
-                contractors={data.contractors}
-                onChange={setFilters}
-              />
-            </div>
-            <div className="max-lg:hidden">
-              <ThemeToggle preference={preference} onChange={setPreference} />
-            </div>
-          </div>
-        </div>
-      </header>
+        </header>
 
-      <main className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6">
-        <section aria-labelledby="summary-title" className="flex flex-col gap-3">
-          <div className="flex items-baseline justify-between gap-2">
-            <h2 id="summary-title" className="text-sm font-semibold text-muted-foreground">
-              משלוחי היום לפי סטטוס
-            </h2>
-            <span className="text-sm text-muted-foreground tabular-nums">{`${view.shipments.length} משלוחים`}</span>
-          </div>
-          <StatusCards shipments={view.shipments} inventory={view.inventory} />
-        </section>
-
-        <div className="grid gap-6 lg:grid-cols-5">
-          <section aria-label="ביצועי קבלנים" className="min-w-0 lg:col-span-2">
-            <ContractorsCard shipments={view.shipments} contractors={data.contractors} />
-          </section>
-          <section aria-label="מלאי" className="min-w-0 lg:col-span-3">
-            <InventoryCard inventory={view.inventory} warehouses={data.warehouses} />
-          </section>
+        {/* SidebarInset הוא כבר <main>, ולכן כאן div ולא main נוסף */}
+        <div id="content" className="flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6">
+          <Page route={route} view={view} stuck={stuck} />
         </div>
-      </main>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   )
+}
+
+function Page({ route, view, stuck }: { route: RouteId; view: DashboardData; stuck: StuckShipment[] }) {
+  switch (route) {
+    case "shipments":
+      return <ShipmentsPage view={view} data={data} />
+    case "stuck":
+      return <StuckPage stuck={stuck} data={data} />
+    case "hourly":
+      return (
+        <Suspense fallback={<Skeleton className="h-96 w-full rounded-xl" />}>
+          <HourlyPage view={view} />
+        </Suspense>
+      )
+    default:
+      return <OverviewPage view={view} data={data} />
+  }
 }

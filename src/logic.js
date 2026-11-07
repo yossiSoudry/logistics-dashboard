@@ -64,3 +64,78 @@ export function applyFilters(data, { warehouseId = "all", contractorId = "all" }
   const inventory = data.inventory.filter((i) => !wh || i.warehouseId === wh);
   return { ...data, shipments, inventory };
 }
+
+// ---------------------------------------------------------------------------
+// עמוד משלוחים. SPEC.md, "גמור": משלוחים וחיפוש.
+
+/**
+ * חיפוש לפי חלק משם הלקוח או ממספר המשלוח, וסינון לפי סטטוס.
+ * לא תלוי באותיות גדולות או קטנות, מתעלם מרווחים בקצוות. מחזיר מערך חדש.
+ */
+export function queryShipments(shipments, { search = "", status = "all" } = {}) {
+  const q = String(search ?? "").trim().toLowerCase();
+  return shipments.filter(
+    (s) =>
+      (!status || status === "all" || s.status === status) &&
+      (!q || s.customer.toLowerCase().includes(q) || s.id.toLowerCase().includes(q)),
+  );
+}
+
+/** "2026-11-08T07:05:00" -> "07:05" */
+export function timeOf(isoDateTime) {
+  return isoDateTime.slice(11, 16);
+}
+
+// ---------------------------------------------------------------------------
+// עמוד תקועים. SPEC.md, "גמור": משלוחים תקועים.
+
+export const STUCK_THRESHOLD_MINUTES = 180;
+
+const OPEN_STATUSES = new Set(["pending", "in_transit"]);
+
+/** דקות שלמות בין שני זמנים בפורמט ISO בלי אזור זמן (שניהם באותו אזור). */
+export function minutesBetween(fromIso, toIso) {
+  return Math.floor((Date.parse(toIso) - Date.parse(fromIso)) / 60000);
+}
+
+/**
+ * משלוח תקוע = ממתין או בדרך, ועברו יותר מ-STUCK_THRESHOLD_MINUTES מאז שנוצר.
+ * ממוין מההמתנה הארוכה לקצרה. כל שורה מקבלת waitedMinutes.
+ */
+export function stuckShipments(shipments, now) {
+  return shipments
+    .filter((s) => OPEN_STATUSES.has(s.status))
+    .map((s) => ({ ...s, waitedMinutes: minutesBetween(s.createdAt, now) }))
+    .filter((s) => s.waitedMinutes > STUCK_THRESHOLD_MINUTES)
+    .sort((a, b) => b.waitedMinutes - a.waitedMinutes || a.id.localeCompare(b.id));
+}
+
+/** 192 -> "3 ש׳ 12 ד׳" ; 45 -> "45 ד׳" */
+export function formatDuration(minutes) {
+  const h = Math.floor(minutes / 60);
+  const m = minutes % 60;
+  if (h === 0) return `${m} ד׳`;
+  if (m === 0) return `${h} ש׳`;
+  return `${h} ש׳ ${m} ד׳`;
+}
+
+// ---------------------------------------------------------------------------
+// עמוד לפי שעה. SPEC.md, "גמור": משלוחים לפי שעה.
+
+/**
+ * שורה לכל שעה עגולה שיש בה משלוחים, ממוינת מהמוקדמת למאוחרת,
+ * עם ספירה לכל סטטוס ו-total.
+ */
+export function hourlyCounts(shipments) {
+  const byHour = new Map();
+  for (const s of shipments) {
+    const hour = Number(s.createdAt.slice(11, 13));
+    if (!byHour.has(hour)) {
+      byHour.set(hour, { hour, label: `${String(hour).padStart(2, "0")}:00`, pending: 0, in_transit: 0, delivered: 0, failed: 0, total: 0 });
+    }
+    const row = byHour.get(hour);
+    if (s.status in row) row[s.status] += 1;
+    row.total += 1;
+  }
+  return [...byHour.values()].sort((a, b) => a.hour - b.hour);
+}
