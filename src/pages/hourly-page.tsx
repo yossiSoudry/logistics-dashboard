@@ -13,10 +13,11 @@ import { STATUSES, STATUS_LABELS, hourlyCounts } from "@/logic.js"
 import type { DashboardData, ShipmentStatus } from "@/types"
 
 const chartConfig = {
-  pending: { label: STATUS_LABELS.pending, color: "var(--chart-3)" },
-  in_transit: { label: STATUS_LABELS.in_transit, color: "var(--chart-1)" },
-  delivered: { label: STATUS_LABELS.delivered, color: "var(--chart-2)" },
-  failed: { label: STATUS_LABELS.failed, color: "var(--destructive)" },
+  // גוונים של הכחול המוביל, אדום רק לנכשל (SPEC.md, שפה חזותית)
+  pending: { label: STATUS_LABELS.pending, color: "var(--status-pending)" },
+  in_transit: { label: STATUS_LABELS.in_transit, color: "var(--status-in-transit)" },
+  delivered: { label: STATUS_LABELS.delivered, color: "var(--status-delivered)" },
+  failed: { label: STATUS_LABELS.failed, color: "var(--status-failed)" },
 } satisfies ChartConfig
 
 export function HourlyPage({ view }: { view: DashboardData }) {
@@ -26,8 +27,8 @@ export function HourlyPage({ view }: { view: DashboardData }) {
   return (
     <Card className="min-w-0">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold">משלוחים לפי שעה</CardTitle>
-        <CardDescription>
+        <CardTitle className="text-sm font-semibold">משלוחים לפי שעה</CardTitle>
+        <CardDescription className="text-xs">
           {`${view.shipments.length} משלוחים לפי שעת יצירה, מפוצלים לפי סטטוס. השעה המוקדמת בצד ימין.`}
         </CardDescription>
       </CardHeader>
@@ -56,7 +57,7 @@ export function HourlyPage({ view }: { view: DashboardData }) {
                   dataKey={st}
                   stackId="status"
                   fill={`var(--color-${st})`}
-                  radius={i === statuses.length - 1 ? [6, 6, 0, 0] : 0}
+                  radius={i === statuses.length - 1 ? [4, 4, 0, 0] : 0}
                   isAnimationActive={false}
                 />
               ))}

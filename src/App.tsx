@@ -57,10 +57,10 @@ export default function App() {
                 <SidebarTrigger className="-ms-1" aria-label="פתיחה וסגירה של סרגל הצד" />
                 <Separator orientation="vertical" className="me-1 data-[orientation=vertical]:h-6" />
                 <div className="min-w-0">
-                  <h1 className="truncate text-base font-bold sm:text-lg" data-page={route}>
+                  <h1 className="truncate text-base font-semibold" data-page={route}>
                     {label}
                   </h1>
-                  <p className="text-xs text-muted-foreground sm:text-sm">{dateLabel}</p>
+                  <p className="text-xs text-muted-foreground">{dateLabel}</p>
                 </div>
               </div>
               <div className="lg:hidden">
@@ -84,7 +84,7 @@ export default function App() {
         </header>
 
         {/* SidebarInset הוא כבר <main>, ולכן כאן div ולא main נוסף */}
-        <div id="content" className="flex w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-6">
+        <div id="content" className="flex w-full max-w-7xl flex-col gap-3 px-3 py-4 sm:px-6 md:gap-4 md:py-6">
           <Page route={route} view={view} stuck={stuck} />
         </div>
       </SidebarInset>
@@ -105,6 +105,6 @@ function Page({ route, view, stuck }: { route: RouteId; view: DashboardData; stu
         </Suspense>
       )
     default:
-      return <OverviewPage view={view} data={data} />
+      return <OverviewPage view={view} data={data} stuck={stuck} />
   }
 }

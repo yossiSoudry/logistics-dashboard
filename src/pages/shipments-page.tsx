@@ -27,8 +27,8 @@ export function ShipmentsPage({ view, data }: { view: DashboardData; data: Dashb
     <Card className="min-w-0">
       <CardHeader className="gap-4">
         <div className="flex flex-col gap-1">
-          <CardTitle className="text-lg font-semibold">כל משלוחי היום</CardTitle>
-          <CardDescription data-testid="result-count">
+          <CardTitle className="text-sm font-semibold">כל משלוחי היום</CardTitle>
+          <CardDescription className="text-xs" data-testid="result-count">
             {`${rows.length} מתוך ${view.shipments.length} משלוחים`}
           </CardDescription>
         </div>
@@ -59,8 +59,8 @@ export function ShipmentsPage({ view, data }: { view: DashboardData; data: Dashb
           <div className="-mx-1 overflow-x-auto px-1">
             <ToggleGroup
               type="single"
-              variant="outline"
               size="sm"
+              spacing={1}
               value={status}
               onValueChange={(v) => setStatus(v || "all")}
               aria-label="סינון לפי סטטוס"
@@ -76,7 +76,7 @@ export function ShipmentsPage({ view, data }: { view: DashboardData; data: Dashb
           </div>
         </div>
       </CardHeader>
-      <CardContent className="px-0">
+      <CardContent>
         {rows.length === 0 ? (
           <div className="flex flex-col items-center gap-2 px-4 py-12 text-center" data-testid="empty-results">
             <PackageSearch className="size-8 text-muted-foreground" />
@@ -84,21 +84,22 @@ export function ShipmentsPage({ view, data }: { view: DashboardData; data: Dashb
             <p className="text-sm text-muted-foreground">נסו חלק אחר של השם או של מספר המשלוח, או נקו את הסינון.</p>
           </div>
         ) : (
+          <div className="overflow-hidden rounded-lg border">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead className="ps-(--card-spacing)">מספר</TableHead>
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="ps-3">מספר</TableHead>
                 <TableHead>לקוח</TableHead>
                 <TableHead>מחסן</TableHead>
                 <TableHead>קבלן</TableHead>
                 <TableHead>סטטוס</TableHead>
-                <TableHead className="pe-(--card-spacing) text-center">שעה</TableHead>
+                <TableHead className="pe-3 text-center">שעה</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {rows.map((s) => (
                 <TableRow key={s.id} data-shipment={s.id}>
-                  <TableCell className="ps-(--card-spacing) font-mono text-xs" dir="ltr">
+                  <TableCell className="ps-3 font-mono text-xs text-muted-foreground" dir="ltr">
                     <span className="block text-start">{s.id}</span>
                   </TableCell>
                   <TableCell className="font-medium">{s.customer}</TableCell>
@@ -107,11 +108,12 @@ export function ShipmentsPage({ view, data }: { view: DashboardData; data: Dashb
                   <TableCell>
                     <StatusBadge status={s.status} />
                   </TableCell>
-                  <TableCell className="pe-(--card-spacing) text-center tabular-nums">{timeOf(s.createdAt)}</TableCell>
+                  <TableCell className="pe-3 text-center tabular-nums">{timeOf(s.createdAt)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
+          </div>
         )}
       </CardContent>
     </Card>

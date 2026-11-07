@@ -23,37 +23,38 @@ export function StuckPage({ stuck, data }: { stuck: StuckShipment[]; data: Dashb
   return (
     <Card className="min-w-0">
       <CardHeader>
-        <CardTitle className="text-lg font-semibold">
+        <CardTitle className="text-sm font-semibold">
           {stuck.length > 0 ? `${stuck.length} משלוחים תקועים` : "אין משלוחים תקועים"}
         </CardTitle>
-        <CardDescription>
+        <CardDescription className="text-xs">
           {`ממתין או בדרך יותר מ-${formatDuration(STUCK_THRESHOLD_MINUTES)}, נכון ל-${timeOf(data.now)}. ממוין מההמתנה הארוכה ביותר.`}
         </CardDescription>
       </CardHeader>
-      <CardContent className="px-0">
+      <CardContent>
         {stuck.length === 0 ? (
           <div className="flex flex-col items-center gap-2 px-4 py-12 text-center" data-testid="empty-stuck">
-            <CircleCheck className="size-8 text-chart-2" />
+            <CircleCheck className="size-8 text-primary" />
             <p className="font-medium">כל המשלוחים הפתוחים בזמן</p>
             <p className="text-sm text-muted-foreground">אין משלוח שממתין יותר מהסף בסינון הנוכחי.</p>
           </div>
         ) : (
+          <div className="overflow-hidden rounded-lg border">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead className="ps-(--card-spacing)">ממתין</TableHead>
+              <TableRow className="hover:bg-transparent">
+                <TableHead className="ps-3">ממתין</TableHead>
                 <TableHead>מספר</TableHead>
                 <TableHead>לקוח</TableHead>
                 <TableHead>סטטוס</TableHead>
                 <TableHead>קבלן</TableHead>
                 <TableHead>מחסן</TableHead>
-                <TableHead className="pe-(--card-spacing) text-center">נוצר</TableHead>
+                <TableHead className="pe-3 text-center">נוצר</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {stuck.map((s) => (
                 <TableRow key={s.id} data-stuck={s.id} data-waited={s.waitedMinutes}>
-                  <TableCell className="ps-(--card-spacing)">
+                  <TableCell className="ps-3">
                     <div className="flex min-w-24 flex-col gap-1">
                       <span
                         className={cn(
@@ -71,7 +72,7 @@ export function StuckPage({ stuck, data }: { stuck: StuckShipment[]; data: Dashb
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell className="font-mono text-xs" dir="ltr">
+                  <TableCell className="font-mono text-xs text-muted-foreground" dir="ltr">
                     <span className="block text-start">{s.id}</span>
                   </TableCell>
                   <TableCell className="font-medium">{s.customer}</TableCell>
@@ -80,11 +81,12 @@ export function StuckPage({ stuck, data }: { stuck: StuckShipment[]; data: Dashb
                   </TableCell>
                   <TableCell className="text-muted-foreground">{contractor.get(s.contractorId)}</TableCell>
                   <TableCell className="text-muted-foreground">{warehouse.get(s.warehouseId)}</TableCell>
-                  <TableCell className="pe-(--card-spacing) text-center tabular-nums">{timeOf(s.createdAt)}</TableCell>
+                  <TableCell className="pe-3 text-center tabular-nums">{timeOf(s.createdAt)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
+          </div>
         )}
       </CardContent>
     </Card>
