@@ -1,7 +1,7 @@
 // מחבר את הנתונים ל-DOM. החישובים עצמם ב-logic.js.
-import { summarizeByStatus, STATUSES, STATUS_LABELS, isLowStock, lowStockItems, contractorPerformance } from "./logic.js";
+import { summarizeByStatus, STATUSES, STATUS_LABELS, isLowStock, lowStockItems, contractorPerformance, applyFilters } from "./logic.js";
 
-const state = { data: null };
+const state = { data: null, filters: { warehouseId: "all", contractorId: "all" } };
 
 function el(id) {
   return document.getElementById(id);
@@ -62,8 +62,39 @@ function renderContractors(shipments) {
   ).join("");
 }
 
+function fillSelect(id, items) {
+  const select = el(id);
+  for (const item of items) {
+    const opt = document.createElement("option");
+    opt.value = item.id;
+    opt.textContent = item.name;
+    select.appendChild(opt);
+  }
+}
+
+function bindFilters() {
+  fillSelect("filter-warehouse", state.data.warehouses);
+  fillSelect("filter-contractor", state.data.contractors);
+  el("filter-warehouse").addEventListener("change", (e) => {
+    state.filters.warehouseId = e.target.value;
+    render();
+  });
+  el("filter-contractor").addEventListener("change", (e) => {
+    state.filters.contractorId = e.target.value;
+    render();
+  });
+  el("filter-reset").addEventListener("click", () => {
+    state.filters = { warehouseId: "all", contractorId: "all" };
+    el("filter-warehouse").value = "all";
+    el("filter-contractor").value = "all";
+    render();
+  });
+}
+
 function render() {
-  const view = state.data;
+  const view = applyFilters(state.data, state.filters);
+  const active = state.filters.warehouseId !== "all" || state.filters.contractorId !== "all";
+  el("filter-reset").disabled = !active;
   renderStatusCards(view.shipments, view.inventory);
   renderContractors(view.shipments);
   renderInventory(view.inventory);
@@ -75,6 +106,7 @@ async function init() {
   el("date").textContent = new Date(state.data.date).toLocaleDateString("he-IL", {
     weekday: "long", day: "numeric", month: "long", year: "numeric",
   });
+  bindFilters();
   render();
 }
 

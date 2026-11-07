@@ -39,6 +39,17 @@
     }
     header h1 { margin: 0; font-size: 1.25rem; }
     header .date { color: var(--muted); font-size: 0.95rem; }
+    .filters { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+    .filters label { display: inline-flex; align-items: center; gap: 6px; font-size: 0.9rem; color: var(--muted); }
+    .filters select {
+      font: inherit; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px;
+      background: var(--card); color: var(--text); min-width: 140px;
+    }
+    .filters button {
+      font: inherit; padding: 6px 12px; border: 1px solid var(--line); border-radius: 8px;
+      background: var(--card); color: var(--accent); cursor: pointer;
+    }
+    .filters button:disabled { color: var(--muted); cursor: default; }
     main { padding: 16px 24px 40px; max-width: 1200px; margin: 0 auto; }
     section { margin-top: 24px; }
     h2 { font-size: 1.05rem; margin: 0 0 10px; color: var(--muted); font-weight: 600; }
@@ -77,6 +88,9 @@
     @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
     @media (max-width: 600px) {
       header, main { padding-inline: 16px; }
+      .filters { width: 100%; }
+      .filters label { flex: 1 1 45%; }
+      .filters select { flex: 1; min-width: 0; }
       .cards { grid-template-columns: repeat(2, 1fr); }
       .card .value { font-size: 1.6rem; }
     }
@@ -86,6 +100,15 @@
   <header>
     <h1>לוח בקרה למלאי ולוגיסטיקה</h1>
     <span class="date" id="date"></span>
+    <form class="filters" id="filters" autocomplete="off">
+      <label>מחסן
+        <select id="filter-warehouse" name="warehouse"><option value="all">הכל</option></select>
+      </label>
+      <label>קבלן
+        <select id="filter-contractor" name="contractor"><option value="all">הכל</option></select>
+      </label>
+      <button type="button" id="filter-reset" disabled>נקה סינון</button>
+    </form>
   </header>
   <main>
     <section id="summary" aria-labelledby="summary-title">
