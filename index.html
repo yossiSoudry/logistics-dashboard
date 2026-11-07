@@ -60,6 +60,16 @@
     .card[data-status="in_transit"] { border-inline-start-color: var(--transit); }
     .card[data-status="delivered"] { border-inline-start-color: var(--delivered); }
     .card[data-status="failed"] { border-inline-start-color: var(--failed); }
+    .card.low { border-inline-start-color: var(--failed); }
+    .table-wrap { overflow-x: auto; background: var(--card); border: 1px solid var(--line); border-radius: 10px; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+    th, td { padding: 10px 12px; text-align: start; border-bottom: 1px solid var(--line); white-space: nowrap; }
+    th { color: var(--muted); font-weight: 600; font-size: 0.85rem; background: #fafbfd; }
+    tr:last-child td { border-bottom: none; }
+    td.num { font-variant-numeric: tabular-nums; }
+    tr.low td { background: var(--low-bg); color: var(--low-text); }
+    tr.low td.qty { font-weight: 700; }
+    .empty { color: var(--muted); padding: 14px; text-align: center; }
     @media (max-width: 600px) {
       header, main { padding-inline: 16px; }
       .cards { grid-template-columns: repeat(2, 1fr); }
@@ -76,6 +86,18 @@
     <section id="summary" aria-labelledby="summary-title">
       <h2 id="summary-title">משלוחי היום לפי סטטוס</h2>
       <div class="cards" id="status-cards"></div>
+    </section>
+
+    <section id="inventory" aria-labelledby="inventory-title">
+      <h2 id="inventory-title">מלאי לפי מחסן</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>פריט</th><th>מחסן</th><th>כמות נוכחית</th><th>מינימום</th></tr>
+          </thead>
+          <tbody id="inventory-rows"></tbody>
+        </table>
+      </div>
     </section>
   </main>
   <script type="module" src="src/app.js"></script>
