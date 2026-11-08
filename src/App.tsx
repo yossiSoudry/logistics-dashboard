@@ -111,8 +111,9 @@ export default function App() {
           </div>
         </header>
 
-        {/* SidebarInset הוא כבר <main>, ולכן כאן div ולא main נוסף */}
-        <div id="content" className="flex w-full max-w-7xl flex-col gap-3 px-3 py-4 sm:px-6 md:gap-4 md:py-6">
+        {/* SidebarInset הוא כבר <main>, ולכן כאן div ולא main נוסף.
+            בלי max-width: התוכן ממלא את כל הרוחב שליד הסרגל בכל מסך (SPEC.md, תצוגה ו-RTL) */}
+        <div id="content" className="flex w-full flex-col gap-3 px-3 py-4 sm:px-6 md:gap-4 md:py-6">
           <Page route={route} view={view} stuck={stuck} />
         </div>
       </SidebarInset>
