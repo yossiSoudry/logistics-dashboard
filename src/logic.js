@@ -155,3 +155,24 @@ export function warehouseSummary(warehouses, inventory) {
 export function toggleContractor(current, id) {
   return current === id ? "all" : id;
 }
+
+// ---------------------------------------------------------------------------
+// גרפי הסקירה. SPEC.md, "גמור": סקירה.
+
+/**
+ * מלאי מול מינימום: לכל פריט diff = כמות פחות מינימום.
+ * שלילי = חוסר (אדום), אפס ומעלה = לא חוסר. החוסרים הגדולים ראשונים.
+ */
+export function stockBalance(inventory) {
+  return inventory
+    .map((i) => ({ sku: i.sku, name: i.name, warehouseId: i.warehouseId, quantity: i.quantity, minimum: i.minimum, diff: i.quantity - i.minimum }))
+    .sort((a, b) => a.diff - b.diff || a.sku.localeCompare(b.sku));
+}
+
+/** השעה העמוסה ביותר מתוך hourlyCounts. בתיקו: המוקדמת. ties = כמה שעות באותו שיא. */
+export function peakHour(rows) {
+  if (rows.length === 0) return null;
+  const max = Math.max(...rows.map((r) => r.total));
+  const peaks = rows.filter((r) => r.total === max);
+  return { label: peaks[0].label, hour: peaks[0].hour, total: max, ties: peaks.length };
+}
