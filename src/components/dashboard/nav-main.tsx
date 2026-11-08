@@ -52,7 +52,7 @@ export function NavMain({ route, stuckCount }: { route: RouteId; stuckCount: num
           if (entry.type === "link") {
             return (
               <SidebarMenuItem key={entry.id}>
-                <SidebarMenuButton asChild isActive={route === entry.id} tooltip={{ children: entry.label, side: "left" }}>
+                <SidebarMenuButton asChild isActive={route === entry.id} tooltip={{ children: entry.label, side: "left", sideOffset: 14 }}>
                   <a href={hrefFor(entry.id)} data-nav={entry.id} aria-current={route === entry.id ? "page" : undefined} onClick={close}>
                     <LayoutDashboard />
                     <span>{entry.label}</span>
@@ -70,7 +70,7 @@ export function NavMain({ route, stuckCount }: { route: RouteId; stuckCount: num
               <SidebarMenuItem key={entry.label}>
                 <DropdownMenu dir="rtl" modal={false}>
                   <DropdownMenuTrigger asChild>
-                    <SidebarMenuButton isActive={groupActive} tooltip={{ children: entry.label, side: "left" }} data-nav-group>
+                    <SidebarMenuButton isActive={groupActive} tooltip={{ children: entry.label, side: "left", sideOffset: 14 }} data-nav-group>
                       <Package />
                       <span>{entry.label}</span>
                     </SidebarMenuButton>
@@ -78,7 +78,7 @@ export function NavMain({ route, stuckCount }: { route: RouteId; stuckCount: num
                   <DropdownMenuContent
                     side="left"
                     align="start"
-                    sideOffset={8}
+                    sideOffset={14}
                     className="min-w-44"
                     data-testid="nav-group-menu"
                     // אחרי מעבר עמוד לא מחזירים פוקוס לכפתור הקבוצה; אחרת הטולטיפים של הסרגל נתקעים
@@ -109,7 +109,7 @@ export function NavMain({ route, stuckCount }: { route: RouteId; stuckCount: num
             <Collapsible key={entry.label} asChild defaultOpen className="group/collapsible">
               <SidebarMenuItem>
                 <CollapsibleTrigger asChild>
-                  <SidebarMenuButton tooltip={{ children: entry.label, side: "left" }} data-nav-group>
+                  <SidebarMenuButton tooltip={{ children: entry.label, side: "left", sideOffset: 14 }} data-nav-group>
                     <Package />
                     <span>{entry.label}</span>
                     {/* RTL: החץ מצביע שמאלה (כיוון הקריאה) ויורד למטה כשהקבוצה פתוחה */}

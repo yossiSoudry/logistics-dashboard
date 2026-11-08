@@ -61,7 +61,13 @@ export function NavContractors({
                     <span className="sr-only">{`פעולות עבור ${c.name}`}</span>
                   </SidebarMenuAction>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-fit" side={isMobile ? "bottom" : "left"} align={isMobile ? "end" : "start"}>
+                <DropdownMenuContent
+                  className="w-fit"
+                  side={isMobile ? "bottom" : "left"}
+                  align={isMobile ? "end" : "start"}
+                  // הכפתור יושב בתוך הסרגל הצף; המרווח מוציא את התפריט אל מחוץ למסגרת שלו
+                  sideOffset={isMobile ? 4 : 16}
+                >
                   <DropdownMenuItem onSelect={() => showPage(c.id, "shipments")} data-action="shipments">
                     <Package />
                     <span>הצג משלוחים</span>

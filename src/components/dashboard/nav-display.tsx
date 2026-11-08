@@ -38,7 +38,7 @@ export function NavDisplay({
             <SidebarMenuButton
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-              tooltip={{ children: `מצב תצוגה: ${THEME_LABELS[preference]}`, side: "left" }}
+              tooltip={{ children: `מצב תצוגה: ${THEME_LABELS[preference]}`, side: "left", sideOffset: 14 }}
               aria-label={`מצב תצוגה: ${THEME_LABELS[preference]}`}
               data-testid="theme-toggle"
             >
@@ -52,7 +52,7 @@ export function NavDisplay({
               <ChevronsUpDown className="ms-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="min-w-56" side={isMobile ? "bottom" : "left"} align="end" sideOffset={4}>
+          <DropdownMenuContent className="min-w-56" side={isMobile ? "bottom" : "left"} align="end" sideOffset={isMobile ? 4 : 14}>
             <DropdownMenuLabel className="text-xs text-muted-foreground">מצב תצוגה</DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuRadioGroup value={preference} onValueChange={onChange}>

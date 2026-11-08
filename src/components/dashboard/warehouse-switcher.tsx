@@ -38,7 +38,7 @@ export function WarehouseSwitcher({
             <SidebarMenuButton
               size="lg"
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
-              tooltip={{ children: `מחסן: ${active.name}`, side: "left" }}
+              tooltip={{ children: `מחסן: ${active.name}`, side: "left", sideOffset: 14 }}
               data-testid="warehouse-switcher"
             >
               <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
@@ -51,7 +51,7 @@ export function WarehouseSwitcher({
               <ChevronsUpDown className="ms-auto" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="min-w-60" align="start" side={isMobile ? "bottom" : "left"} sideOffset={4}>
+          <DropdownMenuContent className="min-w-60" align="start" side={isMobile ? "bottom" : "left"} sideOffset={isMobile ? 4 : 14}>
             <DropdownMenuLabel className="text-xs text-muted-foreground">מחסן</DropdownMenuLabel>
             <DropdownMenuRadioGroup value={value} onValueChange={onChange}>
               {[all, ...rows].map((r) => (

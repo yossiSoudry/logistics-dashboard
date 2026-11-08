@@ -34,7 +34,7 @@ export function AppSidebar({
   dataLabel: string
 }) {
   return (
-    <Sidebar side="right" collapsible="icon">
+    <Sidebar side="right" variant="floating" collapsible="icon">
       <SidebarHeader>
         <WarehouseSwitcher
           warehouses={data.warehouses}
