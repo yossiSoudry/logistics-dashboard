@@ -211,3 +211,15 @@
     @apply font-sans;
     }
 }
+/* SPEC.md, אנימציה: גרפים חיים. רק כשלא ביקשו להפחית תנועה; כל משך עד 600ms. */
+@keyframes draw-line { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@keyframes fade-area { from { opacity: 0; } }
+@keyframes grow-y { from { transform: scaleY(0); } }
+@keyframes grow-x { from { transform: scaleX(0); } }
+@media (prefers-reduced-motion: no-preference) {
+  .motion-draw { stroke-dasharray: 1; animation: draw-line 600ms ease-out backwards; }
+  .motion-fade-area { animation: fade-area 600ms ease-out backwards; }
+  .motion-grow-y { transform-origin: bottom; animation: grow-y 400ms ease-out backwards; }
+  /* RTL: פס אופקי צומח מההתחלה שלו, מימין */
+  .motion-grow-x { transform-origin: right; animation: grow-x 400ms ease-out backwards; }
+}

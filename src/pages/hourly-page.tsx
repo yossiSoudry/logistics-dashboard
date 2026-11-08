@@ -10,6 +10,10 @@ import {
 } from "@/components/ui/chart"
 import { STATUSES, STATUS_LABELS, hourlyCounts, summarizeByStatus } from "@/logic.js"
 import type { DashboardData, ShipmentStatus } from "@/types"
+import { CHART_MS } from "@/lib/motion.js"
+import { useReducedMotion } from "@/hooks/use-reduced-motion"
+import { CountUp, enter } from "@/components/dashboard/motion"
+import { cn } from "@/lib/utils"
 
 // גוונים של הכחול המוביל, אדום רק לנכשל (SPEC.md, שפה חזותית)
 const chartConfig = {
@@ -24,6 +28,7 @@ type Active = "all" | ShipmentStatus
 /** Bar Chart - Interactive של shadcn: מריצים עם סכומים בראש הכרטיס (SPEC.md, משלוחים לפי שעה). */
 export function HourlyPage({ view }: { view: DashboardData }) {
   const [active, setActive] = useState<Active>("all")
+  const reduced = useReducedMotion()
   const rows = hourlyCounts(view.shipments)
   const totals = summarizeByStatus(view.shipments) as Record<ShipmentStatus, number>
   const statuses = STATUSES as ShipmentStatus[]
@@ -34,7 +39,7 @@ export function HourlyPage({ view }: { view: DashboardData }) {
   const shown = active === "all" ? statuses : [active]
 
   return (
-    <Card className="min-w-0 gap-0 py-0">
+    <Card className={cn("min-w-0 gap-0 py-0", enter(0).className)} style={enter(0).style}>
       <CardHeader className="flex flex-col items-stretch gap-0 border-b p-0! lg:flex-row">
         <div className="flex flex-1 flex-col justify-center gap-1 px-(--card-spacing) py-4 lg:py-5">
           <CardTitle className="text-sm font-semibold">משלוחים לפי שעה</CardTitle>
@@ -58,7 +63,7 @@ export function HourlyPage({ view }: { view: DashboardData }) {
                 {t.label}
               </span>
               <span className="text-lg leading-none font-bold tabular-nums sm:text-2xl" data-tile-count={t.key}>
-                {t.value}
+                <CountUp value={t.value} />
               </span>
               {active === t.key && <span className="absolute inset-x-0 bottom-0 h-0.5 bg-primary" aria-hidden />}
             </button>
@@ -86,7 +91,9 @@ export function HourlyPage({ view }: { view: DashboardData }) {
                   stackId="status"
                   fill={`var(--color-${st})`}
                   radius={i === shown.length - 1 ? [4, 4, 0, 0] : 0}
-                  isAnimationActive={false}
+                  isAnimationActive={!reduced}
+                  animationDuration={CHART_MS}
+                  animationEasing="ease-out"
                 />
               ))}
             </BarChart>

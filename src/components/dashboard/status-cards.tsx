@@ -1,6 +1,8 @@
 import { cn } from "@/lib/utils"
 import { Card, CardDescription, CardHeader } from "@/components/ui/card"
 import { Sparkline } from "@/components/dashboard/sparkline"
+import { CountUp, cardHover, enter } from "@/components/dashboard/motion"
+import { BAR_GROW_MS, BAR_STAGGER_MS, staggerDelay } from "@/lib/motion.js"
 import { cumulative } from "@/lib/sparkline.js"
 import {
   STATUSES,
@@ -30,7 +32,8 @@ export function StatusCards({
         <Card
           key={st}
           // טאבלט: שלושה בשורה הראשונה, שניים רחבים בשנייה, בלי חור
-          className={cn("gap-3 pb-0", i < 3 ? "sm:col-span-2 xl:col-span-1" : "sm:col-span-3 xl:col-span-1")}
+          className={cn("gap-3 pb-0", cardHover, enter(i).className, i < 3 ? "sm:col-span-2 xl:col-span-1" : "sm:col-span-3 xl:col-span-1")}
+          style={enter(i).style}
         >
           <CardHeader className="gap-1">
             <CardDescription className="text-xs font-medium">{STATUS_LABELS[st]}</CardDescription>
@@ -38,7 +41,7 @@ export function StatusCards({
               className={cn("text-2xl font-bold tracking-tight tabular-nums", st === "failed" && summary[st] > 0 && "text-destructive")}
               data-count={st}
             >
-              {summary[st]}
+              <CountUp value={summary[st]} />
             </div>
             <p className="text-xs text-muted-foreground tabular-nums">
               {total ? `${Math.round((summary[st] / total) * 100)}% מהמשלוחים` : "אין משלוחים"}
@@ -55,21 +58,22 @@ export function StatusCards({
         </Card>
       ))}
 
-      <Card className="col-span-2 gap-3 sm:col-span-3 xl:col-span-1">
+      <Card className={cn("col-span-2 gap-3 sm:col-span-3 xl:col-span-1", cardHover, enter(4).className)} style={enter(4).style}>
         <CardHeader className="gap-1">
           <CardDescription className="text-xs font-medium">פריטים מתחת למינימום</CardDescription>
           <div className={cn("text-2xl font-bold tracking-tight tabular-nums", low > 0 && "text-destructive")} data-count="low-stock">
-            {low}
+            <CountUp value={low} />
           </div>
           <p className="text-xs text-muted-foreground tabular-nums">{`מתוך ${inventory.length} פריטים במלאי`}</p>
         </CardHeader>
         {/* פס אחד לכל פריט: אדום = מתחת למינימום */}
-        <div className="mt-auto flex h-9 items-end gap-0.5 px-(--card-spacing)" aria-hidden>
-          {inventory.map((item) => (
+        <div key={inventory.map((i) => i.sku).join(",")} className="mt-auto flex h-9 items-end gap-0.5 px-(--card-spacing)" aria-hidden>
+          {inventory.map((item, idx) => (
             <span
               key={item.sku}
+              style={{ animationDelay: `${staggerDelay(idx, BAR_STAGGER_MS, BAR_GROW_MS)}ms` }}
               className={cn(
-                "flex-1 rounded-sm",
+                "motion-grow-y flex-1 rounded-sm",
                 isLowStock(item) ? "h-full bg-destructive" : "h-1/2 bg-foreground/15",
               )}
             />

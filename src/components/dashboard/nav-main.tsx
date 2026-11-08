@@ -28,12 +28,16 @@ type NavGroup = { type: "group"; label: string; items: { id: RouteId; label: str
 function StuckCount({ count }: { count: number }) {
   if (count === 0) return null
   return (
-    <span
-      className="ms-auto rounded-full bg-destructive/12 px-1.5 text-[0.6875rem] leading-5 font-semibold text-destructive tabular-nums"
-      data-stuck-count={count}
-      aria-label={`${count} משלוחים תקועים`}
-    >
-      {count}
+    <span className="relative ms-auto inline-flex">
+      {/* פעימה עדינה: לולאה, החריג היחיד לכלל ה-600ms (SPEC.md, אנימציה) */}
+      <span className="absolute inset-0 rounded-full bg-destructive/25 motion-safe:animate-ping" aria-hidden />
+      <span
+        className="relative rounded-full bg-destructive/12 px-1.5 text-[0.6875rem] leading-5 font-semibold text-destructive tabular-nums"
+        data-stuck-count={count}
+        aria-label={`${count} משלוחים תקועים`}
+      >
+        {count}
+      </span>
     </span>
   )
 }

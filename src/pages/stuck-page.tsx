@@ -12,6 +12,7 @@ import {
 import { StatusBadge } from "@/components/dashboard/status-badge"
 import { STUCK_THRESHOLD_MINUTES, formatDuration, timeOf } from "@/logic.js"
 import type { DashboardData, Shipment } from "@/types"
+import { CountUp, enter } from "@/components/dashboard/motion"
 
 export type StuckShipment = Shipment & { waitedMinutes: number }
 
@@ -21,10 +22,19 @@ export function StuckPage({ stuck, data }: { stuck: StuckShipment[]; data: Dashb
   const longest = stuck[0]?.waitedMinutes ?? 0
 
   return (
-    <Card className="min-w-0">
+    <Card className={cn("min-w-0", enter(0).className)} style={enter(0).style}>
       <CardHeader>
         <CardTitle className="text-sm font-semibold">
-          {stuck.length > 0 ? `${stuck.length} משלוחים תקועים` : "אין משלוחים תקועים"}
+          {stuck.length > 0 ? (
+            <>
+              <span className="tabular-nums" data-stuck-title>
+                <CountUp value={stuck.length} />
+              </span>
+              {" משלוחים תקועים"}
+            </>
+          ) : (
+            "אין משלוחים תקועים"
+          )}
         </CardTitle>
         <CardDescription className="text-xs">
           {`ממתין או בדרך יותר מ-${formatDuration(STUCK_THRESHOLD_MINUTES)}, נכון ל-${timeOf(data.now)}. ממוין מההמתנה הארוכה ביותר.`}
@@ -53,7 +63,7 @@ export function StuckPage({ stuck, data }: { stuck: StuckShipment[]; data: Dashb
             </TableHeader>
             <TableBody>
               {stuck.map((s) => (
-                <TableRow key={s.id} data-stuck={s.id} data-waited={s.waitedMinutes}>
+                <TableRow key={s.id} data-stuck={s.id} data-waited={s.waitedMinutes} className="motion-safe:animate-in motion-safe:fade-in duration-300">
                   <TableCell className="ps-3">
                     <div className="flex min-w-24 flex-col gap-1">
                       <span
@@ -66,7 +76,7 @@ export function StuckPage({ stuck, data }: { stuck: StuckShipment[]; data: Dashb
                       </span>
                       <span className="h-1 w-full overflow-hidden rounded-full bg-foreground/10" aria-hidden>
                         <span
-                          className="block h-full rounded-full bg-destructive/70"
+                          className="motion-grow-x block h-full rounded-full bg-destructive/70"
                           style={{ width: `${Math.round((s.waitedMinutes / longest) * 100)}%` }}
                         />
                       </span>

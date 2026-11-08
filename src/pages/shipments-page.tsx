@@ -15,6 +15,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { StatusBadge } from "@/components/dashboard/status-badge"
 import { STATUSES, STATUS_LABELS, queryShipments, timeOf } from "@/logic.js"
 import type { DashboardData, ShipmentStatus } from "@/types"
+import { enter } from "@/components/dashboard/motion"
 
 export function ShipmentsPage({ view, data }: { view: DashboardData; data: DashboardData }) {
   const [search, setSearch] = useState("")
@@ -24,7 +25,7 @@ export function ShipmentsPage({ view, data }: { view: DashboardData; data: Dashb
   const contractor = new Map(data.contractors.map((c) => [c.id, c.name]))
 
   return (
-    <Card className="min-w-0">
+    <Card className={`min-w-0 ${enter(0).className}`} style={enter(0).style}>
       <CardHeader className="gap-4">
         <div className="flex flex-col gap-1">
           <CardTitle className="text-sm font-semibold">כל משלוחי היום</CardTitle>
@@ -98,7 +99,7 @@ export function ShipmentsPage({ view, data }: { view: DashboardData; data: Dashb
             </TableHeader>
             <TableBody>
               {rows.map((s) => (
-                <TableRow key={s.id} data-shipment={s.id}>
+                <TableRow key={s.id} data-shipment={s.id} className="motion-safe:animate-in motion-safe:fade-in duration-300">
                   <TableCell className="ps-3 font-mono text-xs text-muted-foreground" dir="ltr">
                     <span className="block text-start">{s.id}</span>
                   </TableCell>

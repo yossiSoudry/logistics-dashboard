@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { STATUS_LABELS, STUCK_THRESHOLD_MINUTES, formatDuration } from "@/logic.js"
 import { hrefFor } from "@/lib/routes.js"
+import { cn } from "@/lib/utils"
+import { CountUp, PulseDot, cardHover, enter } from "@/components/dashboard/motion"
 import type { Contractor, Shipment } from "@/types"
 
 const PREVIEW = 5
@@ -11,17 +13,29 @@ export function StuckPreviewCard({
   stuck,
   contractors,
   className,
+  index = 0,
 }: {
   stuck: (Shipment & { waitedMinutes: number })[]
   contractors: Contractor[]
   className?: string
+  index?: number
 }) {
   const names = new Map(contractors.map((c) => [c.id, c.name]))
   return (
-    <Card className={className} data-testid="stuck-preview">
+    <Card className={cn(cardHover, enter(index).className, className)} style={enter(index).style} data-testid="stuck-preview">
       <CardHeader>
-        <CardTitle className="text-sm font-semibold">
-          {stuck.length > 0 ? `תקועים (${stuck.length})` : "תקועים"}
+        <CardTitle className="flex items-center gap-2 text-sm font-semibold">
+          {stuck.length > 0 && <PulseDot />}
+          <span>
+            תקועים
+            {stuck.length > 0 && (
+              <span className="tabular-nums" data-stuck-title>
+                {" ("}
+                <CountUp value={stuck.length} />
+                {")"}
+              </span>
+            )}
+          </span>
         </CardTitle>
         <CardDescription className="text-xs">{`ממתינים יותר מ-${formatDuration(STUCK_THRESHOLD_MINUTES)}, הוותיקים קודם`}</CardDescription>
         {stuck.length > 0 && (

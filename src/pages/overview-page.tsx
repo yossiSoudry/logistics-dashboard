@@ -37,19 +37,19 @@ export function OverviewPage({
       {/* שתי עמודות עצמאיות (מייסונרי), בלי שורות גריד משותפות שיוצרות חורים */}
       <div className="grid items-start gap-3 md:gap-4 xl:grid-cols-3">
         <div className="flex min-w-0 flex-col gap-3 md:gap-4">
-          <StuckPreviewCard stuck={stuck} contractors={data.contractors} />
+          <StuckPreviewCard stuck={stuck} contractors={data.contractors} index={5} />
           <Suspense fallback={<ChartSkeleton className="rounded-xl" height={290} />}>
-            <ContractorsChartCard shipments={view.shipments} contractors={data.contractors} />
+            <ContractorsChartCard shipments={view.shipments} contractors={data.contractors} index={6} />
           </Suspense>
           <Suspense fallback={<ChartSkeleton className="rounded-xl" height={330} />}>
-            <StockBalanceCard inventory={view.inventory} warehouses={data.warehouses} />
+            <StockBalanceCard inventory={view.inventory} warehouses={data.warehouses} index={7} />
           </Suspense>
         </div>
         <div className="flex min-w-0 flex-col gap-3 md:gap-4 xl:col-span-2">
           <Suspense fallback={<ChartSkeleton className="rounded-xl" height={360} />}>
-            <HourlyMiniCard shipments={view.shipments} now={data.now} />
+            <HourlyMiniCard shipments={view.shipments} now={data.now} index={8} />
           </Suspense>
-          <InventoryCard inventory={view.inventory} warehouses={data.warehouses} />
+          <InventoryCard inventory={view.inventory} warehouses={data.warehouses} index={9} />
         </div>
       </div>
     </>

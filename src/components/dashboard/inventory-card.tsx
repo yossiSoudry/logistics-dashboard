@@ -9,21 +9,24 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { isLowStock, lowStockItems } from "@/logic.js"
+import { PulseDot, cardHover, enter } from "@/components/dashboard/motion"
 import type { InventoryItem, Warehouse } from "@/types"
 
 export function InventoryCard({
   inventory,
   warehouses,
   className,
+  index = 0,
 }: {
   inventory: InventoryItem[]
   warehouses: Warehouse[]
   className?: string
+  index?: number
 }) {
   const names = new Map(warehouses.map((w) => [w.id, w.name]))
   const low = lowStockItems(inventory).length
   return (
-    <Card className={className}>
+    <Card className={cn(cardHover, enter(index).className, className)} style={enter(index).style}>
       <CardHeader>
         <CardTitle className="text-sm font-semibold">מלאי לפי מחסן</CardTitle>
         <CardDescription className="text-xs">
@@ -54,13 +57,10 @@ export function InventoryCard({
                 inventory.map((item) => {
                   const isLow = isLowStock(item)
                   return (
-                    <TableRow key={item.sku} data-sku={item.sku} data-low={isLow || undefined}>
+                    <TableRow key={item.sku} data-sku={item.sku} data-low={isLow || undefined} className="motion-safe:animate-in motion-safe:fade-in duration-300">
                       <TableCell className="ps-3">
                         <div className="flex items-center gap-2">
-                          <span
-                            className={cn("size-1.5 shrink-0 rounded-full", isLow ? "bg-destructive" : "bg-transparent")}
-                            aria-hidden
-                          />
+                          {isLow ? <PulseDot /> : <span className="size-1.5 shrink-0" aria-hidden />}
                           <span className={cn("font-medium", isLow && "text-destructive")}>{item.name}</span>
                           {isLow && (
                             <span className="rounded-full border border-destructive/40 px-1.5 text-[0.6875rem] leading-4 font-medium text-destructive max-sm:hidden">

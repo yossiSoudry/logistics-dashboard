@@ -57,8 +57,11 @@ export function Sparkline({
               <stop offset="100%" stopColor={color} stopOpacity={0} />
             </linearGradient>
           </defs>
-          <path d={areaPath(points, height)} fill={`url(#${gradientId})`} />
-          <path d={smoothPath(points)} fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" />
+          {/* key לפי הערכים: שינוי סינון מצייר את הקו מחדש (SPEC.md, אנימציה: גרפים חיים) */}
+          <g key={values.join(",")}>
+            <path d={areaPath(points, height)} fill={`url(#${gradientId})`} className="motion-fade-area" />
+            <path d={smoothPath(points)} pathLength={1} fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" className="motion-draw" />
+          </g>
           {dots &&
             points.map(([x, y], i) => (
               <circle key={i} cx={x} cy={y} r={3} fill="var(--card)" stroke={color} strokeWidth={2}>

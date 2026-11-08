@@ -21,6 +21,9 @@ import {
 import { contractorPerformance, hourlyCounts, peakHour, stockBalance, timeOf } from "@/logic.js"
 import { hrefFor } from "@/lib/routes.js"
 import { cn } from "@/lib/utils"
+import { CHART_MS } from "@/lib/motion.js"
+import { useReducedMotion } from "@/hooks/use-reduced-motion"
+import { cardHover, enter } from "@/components/dashboard/motion"
 import type { Contractor, InventoryItem, Shipment, Warehouse } from "@/types"
 
 // ---------------------------------------------------------------------------
@@ -28,11 +31,12 @@ import type { Contractor, InventoryItem, Shipment, Warehouse } from "@/types"
 
 const hourlyConfig = { total: { label: "משלוחים", color: "var(--primary)" } } satisfies ChartConfig
 
-export function HourlyMiniCard({ shipments, now, className }: { shipments: Shipment[]; now: string; className?: string }) {
+export function HourlyMiniCard({ shipments, now, className, index = 0 }: { shipments: Shipment[]; now: string; className?: string; index?: number }) {
+  const reduced = useReducedMotion()
   const rows = hourlyCounts(shipments) as { hour: number; label: string; total: number }[]
   const peak = peakHour(rows) as { label: string; total: number; ties: number } | null
   return (
-    <Card className={className} data-testid="hourly-mini">
+    <Card className={cn(cardHover, enter(index).className, className)} style={enter(index).style} data-testid="hourly-mini">
       <CardHeader>
         <CardTitle className="text-sm font-semibold">משלוחים לפי שעה</CardTitle>
         <CardDescription className="text-xs">{`סך המשלוחים שנוצרו בכל שעה, עד ${timeOf(now)}`}</CardDescription>
@@ -55,7 +59,7 @@ export function HourlyMiniCard({ shipments, now, className }: { shipments: Shipm
               {/* RTL: השעה המוקדמת מימין */}
               <XAxis dataKey="label" reversed tickLine={false} axisLine={false} tickMargin={8} tickFormatter={(v: string) => v.slice(0, 2)} />
               <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-              <Bar dataKey="total" fill="var(--color-total)" radius={8} isAnimationActive={false}>
+              <Bar dataKey="total" fill="var(--color-total)" radius={8} isAnimationActive={!reduced} animationDuration={CHART_MS} animationEasing="ease-out">
                 <LabelList position="top" offset={8} className="fill-foreground" fontSize={12} />
               </Bar>
             </BarChart>
@@ -115,16 +119,19 @@ export function ContractorsChartCard({
   shipments,
   contractors,
   className,
+  index = 0,
 }: {
   shipments: Shipment[]
   contractors: Contractor[]
   className?: string
+  index?: number
 }) {
+  const reduced = useReducedMotion()
   const rows = (contractorPerformance(shipments, contractors) as { id: string; name: string; total: number; delivered: number; rate: number }[])
     .sort((a, b) => b.total - a.total)
     .map((r) => ({ ...r, end: `${r.rate}% · ${r.delivered}/${r.total}` }))
   return (
-    <Card className={className}>
+    <Card className={cn(cardHover, enter(index).className, className)} style={enter(index).style}>
       <CardHeader>
         <CardTitle className="text-sm font-semibold">ביצועי קבלנים היום</CardTitle>
         <CardDescription className="text-xs">אחוז המסירה, ונמסרו מתוך סך המשלוחים של כל קבלן</CardDescription>
@@ -140,7 +147,7 @@ export function ContractorsChartCard({
                 {/* RTL: ציר הפוך, העמודות מתחילות מימין */}
                 <XAxis dataKey="rate" type="number" hide reversed domain={[0, "dataMax"]} />
                 <ChartTooltip cursor={false} content={<ChartTooltipContent indicator="line" />} />
-                <Bar dataKey="rate" fill="var(--color-rate)" radius={6} barSize={34} isAnimationActive={false}>
+                <Bar dataKey="rate" fill="var(--color-rate)" radius={6} barSize={34} isAnimationActive={!reduced} animationDuration={CHART_MS} animationEasing="ease-out">
                   <LabelList dataKey="name" content={<RtlBarLabel place="start" className="fill-(--color-label) font-medium" />} />
                   <LabelList dataKey="end" content={<RtlBarLabel place="end" className="fill-foreground tabular-nums" />} />
                 </Bar>
@@ -202,16 +209,19 @@ export function StockBalanceCard({
   inventory,
   warehouses,
   className,
+  index = 0,
 }: {
   inventory: InventoryItem[]
   warehouses: Warehouse[]
   className?: string
+  index?: number
 }) {
+  const reduced = useReducedMotion()
   const rows = stockBalance(inventory) as Balance[]
   const names = new Map(warehouses.map((w) => [w.id, w.name]))
   const short = rows.filter((r) => r.diff < 0).length
   return (
-    <Card className={className} data-testid="stock-balance">
+    <Card className={cn(cardHover, enter(index).className, className)} style={enter(index).style} data-testid="stock-balance">
       <CardHeader>
         <CardTitle className="text-sm font-semibold">מלאי מול מינימום</CardTitle>
         <CardDescription className="text-xs">
@@ -229,7 +239,7 @@ export function StockBalanceCard({
                 <XAxis dataKey="name" hide reversed />
                 <ReferenceLine y={0} stroke="var(--border)" />
                 <ChartTooltip cursor={false} content={<StockTooltip names={names} />} />
-                <Bar dataKey="diff" radius={4} isAnimationActive={false}>
+                <Bar dataKey="diff" radius={4} isAnimationActive={!reduced} animationDuration={CHART_MS} animationEasing="ease-out">
                   <LabelList dataKey="diff" content={<ShortageLabel />} />
                   {rows.map((r) => (
                     <Cell key={r.sku} fill={r.diff < 0 ? "var(--destructive)" : "var(--primary)"} data-balance={r.diff} />
