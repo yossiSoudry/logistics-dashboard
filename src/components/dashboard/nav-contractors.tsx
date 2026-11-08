@@ -54,7 +54,7 @@ export function NavContractors({
                 <Truck />
                 <span>{c.name}</span>
               </SidebarMenuButton>
-              <DropdownMenu dir="rtl">
+              <DropdownMenu dir="rtl" modal={false}>
                 <DropdownMenuTrigger asChild>
                   <SidebarMenuAction showOnHover className="aria-expanded:bg-muted" data-contractor-menu={c.id}>
                     <MoreHorizontal />

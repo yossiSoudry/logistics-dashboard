@@ -12,6 +12,7 @@ import type { DashboardData, Filters } from "@/types"
  * TeamSwitcher -> מחליף מחסן, NavMain -> סקירה + קבוצת משלוחים,
  * NavProjects -> קבלנים, NavUser -> מתג תצוגה.
  * RTL: הסרגל בצד ימין, והתפריטים והטולטיפים נפתחים שמאלה לתוך העמוד.
+ * כל התפריטים כאן modal={false}: תפריט ניווט לא נועל את העמוד ולא מסתיר את פס הגלילה (Issue #1).
  */
 export function AppSidebar({
   data,

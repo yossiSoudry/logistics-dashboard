@@ -33,7 +33,7 @@ export function NavDisplay({
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <DropdownMenu dir="rtl">
+        <DropdownMenu dir="rtl" modal={false}>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"

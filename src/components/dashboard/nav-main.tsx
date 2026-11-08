@@ -68,7 +68,7 @@ export function NavMain({ route, stuckCount }: { route: RouteId; stuckCount: num
           if (collapsed) {
             return (
               <SidebarMenuItem key={entry.label}>
-                <DropdownMenu dir="rtl">
+                <DropdownMenu dir="rtl" modal={false}>
                   <DropdownMenuTrigger asChild>
                     <SidebarMenuButton isActive={groupActive} tooltip={{ children: entry.label, side: "left" }} data-nav-group>
                       <Package />
