@@ -1,18 +1,25 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from "react"
+import { X } from "lucide-react"
 import rawData from "../data/mock-data.json"
 import { applyFilters, stuckShipments } from "@/logic.js"
-import { ROUTES } from "@/lib/routes.js"
+import { breadcrumbFor, hrefFor } from "@/lib/routes.js"
 import { useTheme } from "@/hooks/use-theme"
 import { useRoute, type RouteId } from "@/hooks/use-route"
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb"
 import { Separator } from "@/components/ui/separator"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import { Skeleton } from "@/components/ui/skeleton"
 import { AppSidebar } from "@/components/dashboard/app-sidebar"
-import { DashboardFilters } from "@/components/dashboard/filters"
-import { ThemeToggle } from "@/components/dashboard/theme-toggle"
 import { OverviewPage } from "@/pages/overview-page"
 import { ShipmentsPage } from "@/pages/shipments-page"
 import { StuckPage, type StuckShipment } from "@/pages/stuck-page"
-import { Skeleton } from "@/components/ui/skeleton"
 import type { DashboardData, Filters } from "@/types"
 
 const data = rawData as DashboardData
@@ -32,6 +39,8 @@ const shortDate = new Date(data.date).toLocaleDateString("he-IL", { day: "numeri
 // בטאבלט הסרגל מתחיל מכווץ לאייקונים, כדי להשאיר מקום לתוכן
 const startOpen = typeof window === "undefined" || window.matchMedia("(min-width: 1024px)").matches
 
+const nameOf = (list: { id: string; name: string }[], id: string) => list.find((x) => x.id === id)?.name ?? id
+
 export default function App() {
   // הסינון חי כאן, מעל העמודים, ולכן מעבר בין עמודים לא מאפס אותו
   const [filters, setFilters] = useState<Filters>({ warehouseId: "all", contractorId: "all" })
@@ -39,47 +48,66 @@ export default function App() {
   const route = useRoute()
   const view = useMemo(() => applyFilters(data, filters) as DashboardData, [filters])
   const stuck = useMemo(() => stuckShipments(view.shipments, data.now) as StuckShipment[], [view])
-  const label = ROUTES.find((r) => r.id === route)?.label ?? ""
+  const crumbs = breadcrumbFor(route) as string[]
+  const pageLabel = crumbs[crumbs.length - 1]
 
   useEffect(() => {
-    document.title = `${label} · לוח בקרה למלאי ולוגיסטיקה`
+    document.title = `${pageLabel} · לוח בקרה למלאי ולוגיסטיקה`
     window.scrollTo(0, 0)
-  }, [route, label])
+  }, [route, pageLabel])
 
   return (
     <SidebarProvider defaultOpen={startOpen}>
-      <AppSidebar route={route} stuckCount={stuck.length} dateLabel={shortDate} />
+      <AppSidebar
+        data={data}
+        route={route}
+        stuckCount={stuck.length}
+        filters={filters}
+        onFiltersChange={setFilters}
+        preference={preference}
+        onPreferenceChange={setPreference}
+        dataLabel={`נתוני דמה · ${shortDate}`}
+      />
       <SidebarInset className="min-w-0">
-        <header className="sticky top-0 z-30 border-b bg-background/85 backdrop-blur">
-          <div className="flex flex-col gap-3 px-4 py-3 sm:px-6 lg:flex-row lg:items-center lg:justify-between">
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex min-w-0 items-center gap-2">
-                <SidebarTrigger className="-ms-1" aria-label="פתיחה וסגירה של סרגל הצד" />
-                <Separator orientation="vertical" className="me-1 data-[orientation=vertical]:h-6" />
-                <div className="min-w-0">
-                  <h1 className="truncate text-base font-semibold" data-page={route}>
-                    {label}
-                  </h1>
-                  <p className="text-xs text-muted-foreground">{dateLabel}</p>
-                </div>
-              </div>
-              <div className="lg:hidden">
-                <ThemeToggle preference={preference} onChange={setPreference} />
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="min-w-0 flex-1 lg:flex-none">
-                <DashboardFilters
-                  filters={filters}
-                  warehouses={data.warehouses}
-                  contractors={data.contractors}
-                  onChange={setFilters}
-                />
-              </div>
-              <div className="max-lg:hidden">
-                <ThemeToggle preference={preference} onChange={setPreference} />
-              </div>
-            </div>
+        {/* הכותרת של sidebar-07: כפתור הסרגל, קו מפריד ופירורי לחם */}
+        <header className="sticky top-0 z-30 flex min-h-16 shrink-0 flex-wrap items-center gap-x-3 gap-y-2 border-b bg-background/85 px-4 py-2 backdrop-blur transition-[min-height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:min-h-12 sm:px-6">
+          <div className="flex min-w-0 items-center gap-2">
+            <SidebarTrigger className="-ms-1" aria-label="פתיחה וסגירה של סרגל הצד" />
+            <Separator orientation="vertical" className="me-2 data-vertical:h-4 data-vertical:self-auto" />
+            <h1 className="sr-only" data-page={route}>{`${pageLabel} · לוח בקרה למלאי ולוגיסטיקה`}</h1>
+            <Breadcrumb>
+              <BreadcrumbList>
+                {crumbs.length > 1 && (
+                  <>
+                    <BreadcrumbItem className="hidden md:block">
+                      <BreadcrumbLink href={hrefFor("shipments")}>{crumbs[0]}</BreadcrumbLink>
+                    </BreadcrumbItem>
+                    <BreadcrumbSeparator className="hidden md:block" />
+                  </>
+                )}
+                <BreadcrumbItem>
+                  <BreadcrumbPage className="font-medium" data-testid="breadcrumb-page">{pageLabel}</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
+
+          <div className="ms-auto flex flex-wrap items-center gap-2">
+            {filters.warehouseId !== "all" && (
+              <FilterChip
+                label={`מחסן: ${nameOf(data.warehouses, filters.warehouseId)}`}
+                onRemove={() => setFilters({ ...filters, warehouseId: "all" })}
+                testId="chip-warehouse"
+              />
+            )}
+            {filters.contractorId !== "all" && (
+              <FilterChip
+                label={`קבלן: ${nameOf(data.contractors, filters.contractorId)}`}
+                onRemove={() => setFilters({ ...filters, contractorId: "all" })}
+                testId="chip-contractor"
+              />
+            )}
+            <span className="hidden text-xs text-muted-foreground lg:inline">{dateLabel}</span>
           </div>
         </header>
 
@@ -89,6 +117,26 @@ export default function App() {
         </div>
       </SidebarInset>
     </SidebarProvider>
+  )
+}
+
+/** סינון פעיל בכותרת, כדי שגם בטלפון יהיה ברור מה מסונן (SPEC.md, סינון). */
+function FilterChip({ label, onRemove, testId }: { label: string; onRemove: () => void; testId: string }) {
+  return (
+    <span
+      className="inline-flex h-7 items-center gap-1 rounded-full border bg-primary/10 ps-3 pe-1 text-xs font-medium text-primary"
+      data-testid={testId}
+    >
+      {label}
+      <button
+        type="button"
+        onClick={onRemove}
+        className="grid size-5 place-items-center rounded-full hover:bg-primary/15 focus-visible:ring-2 focus-visible:ring-ring/50 focus-visible:outline-none"
+        aria-label={`הסר סינון ${label}`}
+      >
+        <X className="size-3" />
+      </button>
+    </span>
   )
 }
 

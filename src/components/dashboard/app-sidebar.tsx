@@ -1,106 +1,57 @@
-import { Boxes, ChartColumn, Hourglass, LayoutDashboard, Package } from "lucide-react"
-import type { LucideIcon } from "lucide-react"
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarFooter,
-  SidebarGroup,
-  SidebarGroupContent,
-  SidebarGroupLabel,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuBadge,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarRail,
-  useSidebar,
-} from "@/components/ui/sidebar"
-import { ROUTES, hrefFor } from "@/lib/routes.js"
+import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail } from "@/components/ui/sidebar"
+import { WarehouseSwitcher } from "@/components/dashboard/warehouse-switcher"
+import { NavMain } from "@/components/dashboard/nav-main"
+import { NavContractors } from "@/components/dashboard/nav-contractors"
+import { NavDisplay } from "@/components/dashboard/nav-display"
 import type { RouteId } from "@/hooks/use-route"
+import type { ThemePreference } from "@/hooks/use-theme"
+import type { DashboardData, Filters } from "@/types"
 
-const ICONS: Record<RouteId, LucideIcon> = {
-  overview: LayoutDashboard,
-  shipments: Package,
-  stuck: Hourglass,
-  hourly: ChartColumn,
-}
-
+/**
+ * בלוק sidebar-07 של shadcn, ממופה ללוח הבקרה (SPEC.md, ניווט):
+ * TeamSwitcher -> מחליף מחסן, NavMain -> סקירה + קבוצת משלוחים,
+ * NavProjects -> קבלנים, NavUser -> מתג תצוגה.
+ * RTL: הסרגל בצד ימין, והתפריטים והטולטיפים נפתחים שמאלה לתוך העמוד.
+ */
 export function AppSidebar({
+  data,
   route,
   stuckCount,
-  dateLabel,
+  filters,
+  onFiltersChange,
+  preference,
+  onPreferenceChange,
+  dataLabel,
 }: {
+  data: DashboardData
   route: RouteId
   stuckCount: number
-  dateLabel: string
+  filters: Filters
+  onFiltersChange: (next: Filters) => void
+  preference: ThemePreference
+  onPreferenceChange: (value: string) => void
+  dataLabel: string
 }) {
-  const { setOpenMobile } = useSidebar()
   return (
-    // RTL: הסרגל בצד ימין, והטולטיפים במצב מכווץ נפתחים שמאלה לתוך העמוד
-    <Sidebar side="right" collapsible="icon" variant="sidebar">
+    <Sidebar side="right" collapsible="icon">
       <SidebarHeader>
-        <SidebarMenu>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild tooltip={{ children: "לוח בקרה", side: "left" }}>
-              <a href={hrefFor("overview")} onClick={() => setOpenMobile(false)}>
-                <span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary text-primary-foreground">
-                  <Boxes className="size-4" />
-                </span>
-                <span className="grid min-w-0 leading-tight">
-                  <span className="truncate font-bold">לוח בקרה</span>
-                  <span className="truncate text-xs text-muted-foreground">מלאי ולוגיסטיקה</span>
-                </span>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-        </SidebarMenu>
+        <WarehouseSwitcher
+          warehouses={data.warehouses}
+          inventory={data.inventory}
+          value={filters.warehouseId}
+          onChange={(warehouseId) => onFiltersChange({ ...filters, warehouseId })}
+        />
       </SidebarHeader>
-
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>עמודים</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {(ROUTES as { id: RouteId; label: string }[]).map((r) => {
-                const Icon = ICONS[r.id]
-                return (
-                  <SidebarMenuItem key={r.id}>
-                    <SidebarMenuButton
-                      asChild
-                      isActive={route === r.id}
-                      tooltip={{ children: r.label, side: "left" }}
-                    >
-                      <a
-                        href={hrefFor(r.id)}
-                        data-nav={r.id}
-                        aria-current={route === r.id ? "page" : undefined}
-                        onClick={() => setOpenMobile(false)}
-                      >
-                        <Icon />
-                        <span>{r.label}</span>
-                      </a>
-                    </SidebarMenuButton>
-                    {r.id === "stuck" && stuckCount > 0 && (
-                      <SidebarMenuBadge
-                        className="bg-destructive/12 text-destructive peer-data-active/menu-button:text-destructive"
-                        data-stuck-count={stuckCount}
-                        aria-label={`${stuckCount} משלוחים תקועים`}
-                      >
-                        {stuckCount}
-                      </SidebarMenuBadge>
-                    )}
-                  </SidebarMenuItem>
-                )
-              })}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
+        <NavMain route={route} stuckCount={stuckCount} />
+        <NavContractors
+          contractors={data.contractors}
+          value={filters.contractorId}
+          onChange={(contractorId) => onFiltersChange({ ...filters, contractorId })}
+        />
       </SidebarContent>
-
       <SidebarFooter>
-        <p className="px-2 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
-          {`נתוני דמה · ${dateLabel}`}
-        </p>
+        <NavDisplay preference={preference} onChange={onPreferenceChange} dataLabel={dataLabel} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>

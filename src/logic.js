@@ -139,3 +139,19 @@ export function hourlyCounts(shipments) {
   }
   return [...byHour.values()].sort((a, b) => a.hour - b.hour);
 }
+
+// ---------------------------------------------------------------------------
+// סרגל הצד. SPEC.md, "גמור": סינון (מחליף מחסן ורשימת קבלנים).
+
+/** לכל מחסן: מספר הפריטים ומספר הפריטים מתחת למינימום. */
+export function warehouseSummary(warehouses, inventory) {
+  return warehouses.map((w) => {
+    const items = inventory.filter((i) => i.warehouseId === w.id);
+    return { id: w.id, name: w.name, items: items.length, low: lowStockItems(items).length };
+  });
+}
+
+/** לחיצה על קבלן בוחרת אותו; לחיצה נוספת על אותו קבלן מבטלת ("all"). */
+export function toggleContractor(current, id) {
+  return current === id ? "all" : id;
+}

@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { loadMockData } from "./helpers.js";
-import { applyFilters, summarizeByStatus, contractorPerformance } from "../src/logic.js";
+import { applyFilters, summarizeByStatus, contractorPerformance, warehouseSummary, toggleContractor } from "../src/logic.js";
 
 const data = loadMockData();
 
@@ -44,4 +44,17 @@ test("הסינון לא משנה את קובץ הנתונים", () => {
   applyFilters(data, { warehouseId: "south", contractorId: "c3" });
   applyFilters(data, { warehouseId: "north" });
   assert.equal(JSON.stringify(data), before);
+});
+
+test("מחליף המחסן: לכל מחסן מספר פריטים ומספר חסרים, והסכומים תואמים למלאי", () => {
+  const rows = warehouseSummary(data.warehouses, data.inventory);
+  assert.deepEqual(rows.map((r) => r.name), ["מרכז", "צפון", "דרום"]);
+  assert.equal(rows.reduce((s, r) => s + r.items, 0), data.inventory.length);
+  assert.equal(rows.reduce((s, r) => s + r.low, 0), data.inventory.filter((i) => i.quantity < i.minimum).length);
+});
+
+test("רשימת הקבלנים: לחיצה בוחרת, לחיצה נוספת על אותו קבלן מבטלת", () => {
+  assert.equal(toggleContractor("all", "c2"), "c2");
+  assert.equal(toggleContractor("c2", "c2"), "all");
+  assert.equal(toggleContractor("c2", "c3"), "c3");
 });

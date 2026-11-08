@@ -24,3 +24,30 @@ export function hrefFor(id) {
   const route = ROUTES.find((r) => r.id === id) ?? ROUTES[0];
   return `#${route.path}`;
 }
+
+// מבנה סרגל הצד (sidebar-07): "סקירה" לבד, ושלושת עמודי המשלוחים בקבוצה נפתחת.
+export const NAV_GROUP_LABEL = "משלוחים";
+export const NAV = [
+  { type: "link", id: "overview", label: "סקירה" },
+  {
+    type: "group",
+    label: NAV_GROUP_LABEL,
+    items: [
+      { id: "shipments", label: "כל המשלוחים" },
+      { id: "stuck", label: "תקועים" },
+      { id: "hourly", label: "לפי שעה" },
+    ],
+  },
+];
+
+/** פירורי הלחם בכותרת: ["סקירה"] או ["משלוחים", "תקועים"]. */
+export function breadcrumbFor(id) {
+  for (const entry of NAV) {
+    if (entry.type === "link" && entry.id === id) return [entry.label];
+    if (entry.type === "group") {
+      const item = entry.items.find((i) => i.id === id);
+      if (item) return [entry.label, item.label];
+    }
+  }
+  return [NAV[0].label];
+}
