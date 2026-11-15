@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { loadMockData } from "./helpers.js";
-import { shabbatRows, formatTimeLeft, applyFilters } from "../src/logic.js";
+import { shabbatRows, formatTimeLeft, applyFilters, dayAndTime, havdalahLabel } from "../src/logic.js";
 
 const data = loadMockData();
 const stop = (candles) => ({ stop: { kind: "shabbat", title: "פרשת תולדות", shabbat: true, candles, havdalah: null } });
@@ -35,10 +35,26 @@ test("מחסן בלי מיקום, ומחסן שעוד נטען", () => {
   assert.deepEqual(rows.map((r) => r.state), ["noLocation", "loading"]);
 });
 
-test("זמן שנותר: ימים ושעות, או שעות ודקות כשנשאר פחות מיום", () => {
-  assert.equal(formatTimeLeft(4 * 24 * 60 + 22 * 60 + 22), "4 ימים ו-22 ש׳");
+test("זמן שנותר: ימים, שעות ודקות, כך שההבדל בין ערים נראה", () => {
+  const ta = formatTimeLeft(4 * 24 * 60 + 22 * 60 + 22);
+  const haifa = formatTimeLeft(4 * 24 * 60 + 22 * 60 + 9);
+  assert.equal(ta, "4 ימים, 22 ש׳ ו-22 ד׳");
+  assert.equal(haifa, "4 ימים, 22 ש׳ ו-9 ד׳");
+  assert.notEqual(ta, haifa);
   assert.equal(formatTimeLeft(24 * 60 + 60), "יום ו-1 ש׳");
+  assert.equal(formatTimeLeft(24 * 60 + 5), "יום ו-5 ד׳");
   assert.equal(formatTimeLeft(2 * 24 * 60), "2 ימים");
   assert.equal(formatTimeLeft(192), "3 ש׳ 12 ד׳");
   assert.equal(formatTimeLeft(45), "45 ד׳");
+});
+
+test("נרות עם היום שלהם, והבדלה עם היום שלה ולא של יום שישי", () => {
+  assert.equal(dayAndTime("2026-11-13T16:22:00"), "יום ו׳ 13.11, 16:22");
+  assert.equal(havdalahLabel("2026-11-14T17:20:00"), "מוצ״ש 14.11, 17:20");
+  // חג שלא בשבת: יום טוב ביום ראשון, ההבדלה במוצאי החג
+  assert.equal(havdalahLabel("2026-10-04T18:50:00"), "מוצאי חג 4.10, 18:50");
+});
+
+test("ה'עכשיו' של הדמו מוצג עם יום, תאריך ושעה", () => {
+  assert.equal(dayAndTime(data.now), "יום א׳ 8.11, 18:00");
 });

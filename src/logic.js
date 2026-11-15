@@ -180,13 +180,35 @@ export function peakHour(rows) {
 // ---------------------------------------------------------------------------
 // עד כניסת שבת. SPEC.md, גמור / עד כניסת שבת.
 
-/** 7102 -> "4 ימים ו-22 ש׳" ; 1500 -> "יום ו-1 ש׳" ; 192 -> "3 ש׳ 12 ד׳" */
+/**
+ * הזמן שנותר, עם דקות, כדי שההבדל בין ערים ייראה (SPEC.md, גמור / עד כניסת שבת).
+ * 7102 -> "4 ימים, 22 ש׳ ו-22 ד׳" ; 1440 -> "יום" ; 1500 -> "יום ו-1 ש׳" ; 192 -> "3 ש׳ 12 ד׳"
+ */
 export function formatTimeLeft(minutes) {
   if (minutes < 24 * 60) return formatDuration(minutes);
   const days = Math.floor(minutes / (24 * 60));
   const hours = Math.floor((minutes % (24 * 60)) / 60);
-  const dayText = days === 1 ? "יום" : `${days} ימים`;
-  return hours === 0 ? dayText : `${dayText} ו-${hours} ש׳`;
+  const mins = minutes % 60;
+  const parts = [days === 1 ? "יום" : `${days} ימים`];
+  if (hours) parts.push(`${hours} ש׳`);
+  if (mins) parts.push(`${mins} ד׳`);
+  if (parts.length === 1) return parts[0];
+  return `${parts.slice(0, -1).join(", ")} ו-${parts[parts.length - 1]}`;
+}
+
+const WEEKDAYS = ["א׳", "ב׳", "ג׳", "ד׳", "ה׳", "ו׳", "ש׳"];
+
+/** "2026-11-13T16:22:00" -> "יום ו׳ 13.11, 16:22" (שעון ישראל, בלי תלות בשפת הדפדפן) */
+export function dayAndTime(localIso) {
+  const date = new Date(`${localIso.slice(0, 10)}T12:00:00Z`);
+  return `יום ${WEEKDAYS[date.getUTCDay()]} ${date.getUTCDate()}.${date.getUTCMonth() + 1}, ${timeOf(localIso)}`;
+}
+
+/** ההבדלה עם היום שלה: "מוצ״ש 14.11, 17:20" במוצאי שבת, "מוצאי חג 26.9, 19:09" אחרת. */
+export function havdalahLabel(localIso) {
+  const date = new Date(`${localIso.slice(0, 10)}T12:00:00Z`);
+  const day = date.getUTCDay() === 6 ? "מוצ״ש" : "מוצאי חג";
+  return `${day} ${date.getUTCDate()}.${date.getUTCMonth() + 1}, ${timeOf(localIso)}`;
 }
 
 /**

@@ -3,13 +3,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
-import { formatTimeLeft, shabbatRows, timeOf } from "@/logic.js"
+import { dayAndTime, formatTimeLeft, havdalahLabel, shabbatRows } from "@/logic.js"
 import { cardHover, enter } from "@/components/dashboard/motion"
 import type { ShabbatEntry } from "@/hooks/use-shabbat"
 import type { Shipment, Warehouse } from "@/types"
-
-const dayLabel = (iso: string) =>
-  new Date(`${iso.slice(0, 10)}T12:00:00Z`).toLocaleDateString("he-IL", { weekday: "short", day: "numeric", month: "numeric", timeZone: "UTC" })
 
 type Row = ReturnType<typeof shabbatRows>[number] & {
   stop?: { kind: string; title: string; shabbat: boolean; candles: string; havdalah: string | null }
@@ -49,7 +46,10 @@ export function ShabbatCard({
           <Flame className="size-4 text-primary" aria-hidden />
           עד כניסת שבת
         </CardTitle>
-        <CardDescription className="text-xs">{`הדלקת הנרות הקרובה בעיר של כל מחסן, נכון ל-${timeOf(now)}, ומשלוחים שעוד פתוחים`}</CardDescription>
+        <CardDescription className="text-xs">
+          הדלקת הנרות הקרובה בעיר של כל מחסן, ומשלוחים שעוד פתוחים.
+          <span className="block" data-testid="shabbat-now">{`נכון ל${dayAndTime(now)} (זמן הדמו)`}</span>
+        </CardDescription>
       </CardHeader>
       <CardContent>
         <ul className="flex flex-col gap-3.5">
@@ -75,16 +75,15 @@ export function ShabbatCard({
                     <span className="text-xs text-foreground/80" data-stop-title>
                       {`${r.stop.kind === "yomtov" ? "ערב חג" : "ערב שבת"} · ${r.stop.title}`}
                     </span>
-                    <span className="text-xs text-muted-foreground">
-                      {`${dayLabel(r.stop.candles)} · נרות `}
-                      <span className="tabular-nums" data-candles>{timeOf(r.stop.candles)}</span>
-                      {r.stop.havdalah && (
-                        <>
-                          {" · הבדלה "}
-                          <span className="tabular-nums">{timeOf(r.stop.havdalah)}</span>
-                        </>
-                      )}
+                    <span className="text-xs text-muted-foreground tabular-nums" data-candles-line>
+                      {"נרות: "}
+                      <span data-candles>{dayAndTime(r.stop.candles)}</span>
                     </span>
+                    {r.stop.havdalah && (
+                      <span className="text-xs text-muted-foreground tabular-nums" data-havdalah>
+                        {`הבדלה: ${havdalahLabel(r.stop.havdalah)}`}
+                      </span>
+                    )}
                   </>
                 )}
                 {r.state === "loading" && <Skeleton className="mt-1 h-3 w-40" />}
