@@ -113,9 +113,9 @@ async function main() {
   await create(TABLES.settings, linked.settings);
 
   // 4. אימות: קוראים בחזרה דרך אותו קוד שהאתר משתמש בו
-  const { data: back, skipped } = await loadDashboard({ baseId, token });
-  if (skipped > 0 || !isDeepStrictEqual(back, data)) {
-    fail(`הנתונים שנקראו מ-Airtable לא זהים לקובץ הדמה (דילוגים: ${skipped}).`);
+  const { data: back, rejected } = await loadDashboard({ baseId, token });
+  if (rejected.length > 0 || !isDeepStrictEqual(back, data)) {
+    fail(`הנתונים שנקראו מ-Airtable לא זהים לקובץ הדמה (רשומות לא תקינות: ${rejected.length}).`);
   }
   console.log("\n✓ הנתונים ב-Airtable זהים לקובץ הדמה.");
   if (existing.has("Table 1")) {

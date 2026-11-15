@@ -6,8 +6,11 @@ import { AirtableError } from "./airtable-client.js";
 /** כתובת הפונקציה ב-Vercel. ציבורית: היא לא סוד, הטוקן נשאר מאחוריה. */
 export const DEFAULT_API_URL = "https://logistics-dashboard-api.vercel.app";
 
+/** הלוח מרענן לבד כל חמש דקות כשהעמוד נראה (SPEC.md, נתונים / קצב). */
+export const AUTO_REFRESH_MS = 5 * 60 * 1000;
+
 /**
- * מחזיר { data, skipped } מהפונקציה. שגיאה = AirtableError עם הודעה בעברית,
+ * מחזיר { data, rejected } מהפונקציה (rejected: רשומות ששברו כלל, עם טבלה, מפתח וסיבה). שגיאה = AirtableError עם הודעה בעברית,
  * לפי הסוג שהפונקציה החזירה (auth, forbidden, rate...), או network / api.
  */
 export async function fetchDashboard({ apiUrl, fetchImpl = fetch }) {
@@ -27,5 +30,5 @@ export async function fetchDashboard({ apiUrl, fetchImpl = fetch }) {
   if (!res.ok || !body?.data) {
     throw new AirtableError(body?.error?.kind ?? "api", `HTTP ${res.status}`);
   }
-  return body;
+  return { data: body.data, rejected: Array.isArray(body.rejected) ? body.rejected : [] };
 }
