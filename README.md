@@ -32,7 +32,7 @@ Vite, React, Tailwind ו-[shadcn/ui](https://ui.shadcn.com) במצב RTL, בער
 1. ב-Airtable: יוצרים בסיס ריק ושני טוקנים ב-[Builder Hub](https://airtable.com/create/tokens), שניהם לבסיס הזה בלבד:
    - טוקן קריאה לאתר: `data.records:read`.
    - טוקן כתיבה לטעינה: `data.records:read`, `data.records:write`, `schema.bases:read`, `schema.bases:write`.
-2. מעתיקים את `.env.example` ל-`.env.local` וממלאים (הקובץ לא נכנס ל-git).
+2. מעתיקים את `.env.example` ל-`.env` וממלאים (הקובץ לא נכנס ל-git).
 3. `pnpm seed` יוצר את הטבלאות, טוען את `data/mock-data.json` ובודק שמה שחזר מ-Airtable זהה לקובץ. אחרי זה אפשר למחוק את טוקן הכתיבה.
 4. ב-Vercel, בפרויקט `logistics-dashboard-api`: משתני הסביבה `AIRTABLE_BASE_ID` ו-`AIRTABLE_READ_TOKEN`. הם נשארים בשרת. האתר ב-GitHub Pages נבנה בלי שום טוקן.
 

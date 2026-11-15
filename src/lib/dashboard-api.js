@@ -3,6 +3,9 @@
 
 import { AirtableError } from "./airtable-client.js";
 
+/** כתובת הפונקציה ב-Vercel. ציבורית: היא לא סוד, הטוקן נשאר מאחוריה. */
+export const DEFAULT_API_URL = "https://logistics-dashboard-api.vercel.app";
+
 /**
  * מחזיר { data, skipped } מהפונקציה. שגיאה = AirtableError עם הודעה בעברית,
  * לפי הסוג שהפונקציה החזירה (auth, forbidden, rate...), או network / api.

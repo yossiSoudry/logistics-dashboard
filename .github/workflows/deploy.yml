@@ -31,7 +31,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
-      # האתר נבנה בלי שום טוקן: הנתונים מגיעים מהפונקציה ב-Vercel (כתובתה ב-.env, ערך ציבורי).
+      # האתר נבנה בלי שום טוקן: הנתונים מגיעים מהפונקציה ב-Vercel (כתובתה בקוד, ערך ציבורי).
       - run: pnpm build
       # SPEC.md, נתונים מ-Airtable: נכשל (ועוצר את המיזוג והפרסום) אם בקוד האתר יש טוקן או כתובת של Airtable
       - run: pnpm check:bundle

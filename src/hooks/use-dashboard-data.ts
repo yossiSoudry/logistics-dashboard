@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { AirtableError } from "@/lib/airtable-client.js"
-import { fetchDashboard } from "@/lib/dashboard-api.js"
+import { DEFAULT_API_URL, fetchDashboard } from "@/lib/dashboard-api.js"
 import type { DashboardData } from "@/types"
 
-// כתובת הפונקציה ב-Vercel שמחזיקה את הטוקן (SPEC.md, נתונים מ-Airtable). ערך ציבורי, מ-.env.
-// לאתר אין טוקן בכלל.
-const API_URL = import.meta.env.VITE_API_URL as string | undefined
+// כתובת הפונקציה ב-Vercel שמחזיקה את הטוקן (SPEC.md, נתונים מ-Airtable). ערך ציבורי.
+// VITE_API_URL מאפשר לכוון לפונקציה אחרת בבדיקות. לאתר אין טוקן בכלל.
+const API_URL = (import.meta.env.VITE_API_URL as string | undefined) || DEFAULT_API_URL
 
 export interface DashboardDataState {
   data: DashboardData | null
