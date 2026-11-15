@@ -1,8 +1,10 @@
-# בונה ומפרסם ל-GitHub Pages בכל דחיפה ל-main.
-# בדיקה שנכשלת עוצרת את הפרסום (Practice.md, שלב 4).
-name: Deploy to GitHub Pages
+# CI על כל Pull Request: בדיקות ובנייה. בדיקה שנכשלת חוסמת את המיזוג (Practice.md, ענפים ו-CI).
+# פרסום ל-GitHub Pages רק אחרי מיזוג ל-main.
+name: CI and deploy
 
 on:
+  # כל PR, גם PR שמכוון לענף אחר (PR שתלוי ב-PR), כדי שהבדיקה תרוץ לפני כל מיזוג
+  pull_request:
   push:
     branches: [main]
   workflow_dispatch:
@@ -13,8 +15,9 @@ permissions:
   id-token: write
 
 concurrency:
-  group: pages
-  cancel-in-progress: false
+  # PR: גרסה חדשה של הענף מבטלת בדיקה ישנה. main: פרסום אחד אחרי השני, בלי לבטל.
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build:
@@ -33,12 +36,16 @@ jobs:
         env:
           VITE_AIRTABLE_BASE_ID: ${{ secrets.AIRTABLE_BASE_ID }}
           VITE_AIRTABLE_TOKEN: ${{ secrets.AIRTABLE_READ_TOKEN }}
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+      - if: github.event_name != 'pull_request'
+        uses: actions/configure-pages@v5
+      - if: github.event_name != 'pull_request'
+        uses: actions/upload-pages-artifact@v3
         with:
           path: dist
 
   deploy:
+    # רק מיזוג ל-main מגיע לאתר החי
+    if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
     environment:

@@ -5,3 +5,8 @@ dist/
 # סודות: רק מקומית (Practice.md)
 .env.local
 .env.*.local
+.vercel
+.env
+.env.*
+!.env.example
+logs/
