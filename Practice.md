@@ -44,7 +44,9 @@
 - `src/components/ui/` – קומפוננטות shadcn/ui. נוספות עם `pnpm dlx shadcn@latest add`.
 - `src/index.css` – Tailwind וערכת הצבעים Twitter (משתני CSS לבהיר ולכהה).
 - `data/mock-data.json` – נתוני הדמה: מקור הטעינה לבסיס ונתוני הבדיקות. האתר לא קורא אותו.
-- `scripts/seed-airtable.mjs` – יוצר את הטבלאות ב-Airtable וטוען את נתוני הדמה (`pnpm seed`).
+- `scripts/seed-airtable.mjs` – יוצר את הטבלאות ב-Airtable וטוען את נתוני הדמה (`pnpm seed`). בטוח להרצה חוזרת; `--dry-run` לחזרה גנרלית, `--base` לעותק, `--restore` להחזרת נתוני הדמה.
+- `src/lib/seed-plan.js` – התוכנית של הסקריפט, טהורה ונבדקת: מה ליצור, מה כבר קיים, מה שונה.
+- `logs/` – רישום של כל הרצת טעינה. לא נכנס ל-git.
 - `.env.example` – רשימת המשתנים, בלי ערכים. נכנס ל-git.
 - `.env` – הסודות האמיתיים, רק במחשב. `.gitignore` מוציא אותו מכל קומיט.
 - `vercel.json` ו-`.vercelignore` – הפונקציה בלבד; האתר עצמו ב-GitHub Pages.
