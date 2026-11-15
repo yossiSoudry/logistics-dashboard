@@ -3,8 +3,8 @@
 name: CI and deploy
 
 on:
+  # כל PR, גם PR שמכוון לענף אחר (PR שתלוי ב-PR), כדי שהבדיקה תרוץ לפני כל מיזוג
   pull_request:
-    branches: [main]
   push:
     branches: [main]
   workflow_dispatch:
