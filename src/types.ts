@@ -1,6 +1,6 @@
 export type ShipmentStatus = "pending" | "in_transit" | "delivered" | "failed"
 
-export interface Warehouse { id: string; name: string }
+export interface Warehouse { id: string; name: string; city?: string; geonameId?: number }
 export interface Contractor { id: string; name: string }
 export interface InventoryItem {
   sku: string

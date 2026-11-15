@@ -13,7 +13,7 @@ export function isAllowedOrigin(origin) {
   return Boolean(origin) && (ALLOWED_ORIGINS.includes(origin) || LOCAL.test(origin));
 }
 
-function headers(origin, extra = {}) {
+export function headers(origin, extra = {}) {
   return {
     "Content-Type": "application/json; charset=utf-8",
     // בלי מטמון: רענון בלוח צריך לראות שינוי ב-Airtable מיד
@@ -24,7 +24,7 @@ function headers(origin, extra = {}) {
   };
 }
 
-const json = (status, body, origin, extra) => new Response(JSON.stringify(body), { status, headers: headers(origin, extra) });
+export const json = (status, body, origin, extra) => new Response(JSON.stringify(body), { status, headers: headers(origin, extra) });
 
 /**
  * התשובה נשמרת עשר שניות בשרת של Vercel, לא בדפדפן (SPEC.md, נתונים / קצב):

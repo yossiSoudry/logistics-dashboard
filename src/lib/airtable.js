@@ -35,7 +35,10 @@ const TEXT = { type: "singleLineText" };
  * השדה הראשון הוא השדה הראשי. link = שם הטבלה המקושרת.
  */
 export const SCHEMA = [
-  { name: TABLES.warehouses, fields: [{ name: "Key", ...TEXT }, { name: "Name", ...TEXT }] },
+  {
+    name: TABLES.warehouses,
+    fields: [{ name: "Key", ...TEXT }, { name: "Name", ...TEXT }, { name: "City", ...TEXT }, { name: "Geoname ID", ...INTEGER }],
+  },
   { name: TABLES.contractors, fields: [{ name: "Key", ...TEXT }, { name: "Name", ...TEXT }] },
   {
     name: TABLES.inventory,
@@ -155,7 +158,18 @@ export function fromAirtable({ warehouses, contractors, inventory, shipments, se
   };
 
   const named = (f, key) => (text(f.Name) ? { id: key, name: text(f.Name) } : "חסר Name");
-  const warehouseRows = checkTable(TABLES.warehouses, warehouses, "Key", named);
+  // מיקום (רשות): Geoname ID לא תקין לא מוציא את המחסן מהלוח, רק את זמני השבת שלו, ונרשם עם הסיבה
+  const warehouseRows = checkTable(TABLES.warehouses, warehouses, "Key", (f, key) => {
+    const row = named(f, key);
+    if (typeof row === "string") return row;
+    if (text(f.City)) row.city = text(f.City);
+    const g = f["Geoname ID"];
+    if (g !== undefined && g !== null && g !== "") {
+      if (Number.isInteger(g) && g > 0) row.geonameId = g;
+      else reject(TABLES.warehouses, key, "Geoname ID לא תקין: המחסן נכלל, בלי זמני שבת");
+    }
+    return row;
+  });
   const contractorRows = checkTable(TABLES.contractors, contractors, "Key", named);
 
   const inventoryRows = checkTable(TABLES.inventory, inventory, "SKU", (f, sku) => {
@@ -204,7 +218,7 @@ export function fromAirtable({ warehouses, contractors, inventory, shipments, se
 export function toAirtableFields(data, ids = { warehouses: new Map(), contractors: new Map() }) {
   const link = (map, key) => [map.get(key)];
   return {
-    warehouses: data.warehouses.map((w) => ({ Key: w.id, Name: w.name })),
+    warehouses: data.warehouses.map((w) => ({ Key: w.id, Name: w.name, ...(w.city ? { City: w.city } : {}), ...(w.geonameId ? { "Geoname ID": w.geonameId } : {}) })),
     contractors: data.contractors.map((c) => ({ Key: c.id, Name: c.name })),
     inventory: data.inventory.map((i) => ({
       SKU: i.sku,

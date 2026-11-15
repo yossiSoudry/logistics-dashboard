@@ -176,3 +176,34 @@ export function peakHour(rows) {
   const peaks = rows.filter((r) => r.total === max);
   return { label: peaks[0].label, hour: peaks[0].hour, total: max, ties: peaks.length };
 }
+
+// ---------------------------------------------------------------------------
+// עד כניסת שבת. SPEC.md, גמור / עד כניסת שבת.
+
+/** 7102 -> "4 ימים ו-22 ש׳" ; 1500 -> "יום ו-1 ש׳" ; 192 -> "3 ש׳ 12 ד׳" */
+export function formatTimeLeft(minutes) {
+  if (minutes < 24 * 60) return formatDuration(minutes);
+  const days = Math.floor(minutes / (24 * 60));
+  const hours = Math.floor((minutes % (24 * 60)) / 60);
+  const dayText = days === 1 ? "יום" : `${days} ימים`;
+  return hours === 0 ? dayText : `${dayText} ו-${hours} ש׳`;
+}
+
+/**
+ * שורה לכל מחסן (אחרי סינון המחסן): העצירה הבאה מ-Hebcal, כמה זמן נשאר מ-now,
+ * וכמה משלוחים פתוחים (ממתין ובדרך) במחסן, מתוך המשלוחים המסוננים.
+ * stops: מזהה מחסן -> { stop } או { error }. מחסן בלי geonameId: noLocation.
+ */
+export function shabbatRows(warehouses, stops, shipments, now, warehouseId = "all") {
+  return warehouses
+    .filter((w) => !warehouseId || warehouseId === "all" || w.id === warehouseId)
+    .map((w) => {
+      const open = shipments.filter((s) => s.warehouseId === w.id && OPEN_STATUSES.has(s.status)).length;
+      const base = { id: w.id, name: w.name, city: w.city ?? null, open };
+      if (!w.geonameId) return { ...base, state: "noLocation" };
+      const entry = stops[w.id];
+      if (!entry) return { ...base, state: "loading" };
+      if (entry.error) return { ...base, state: "error" };
+      return { ...base, state: "ready", stop: entry.stop, minutesLeft: minutesBetween(now, entry.stop.candles) };
+    });
+}
