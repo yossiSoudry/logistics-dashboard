@@ -28,7 +28,11 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
+      # טוקן קריאה בלבד לבסיס אחד (SPEC.md, נתונים מ-Airtable). נכנס לבנייה, לא לריפו.
       - run: pnpm build
+        env:
+          VITE_AIRTABLE_BASE_ID: ${{ secrets.AIRTABLE_BASE_ID }}
+          VITE_AIRTABLE_TOKEN: ${{ secrets.AIRTABLE_READ_TOKEN }}
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

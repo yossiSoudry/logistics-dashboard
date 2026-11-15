@@ -1,10 +1,10 @@
 import { Suspense, lazy, useEffect, useMemo, useState } from "react"
 import { X } from "lucide-react"
-import rawData from "../data/mock-data.json"
 import { applyFilters, stuckShipments } from "@/logic.js"
 import { breadcrumbFor, hrefFor } from "@/lib/routes.js"
 import { useTheme } from "@/hooks/use-theme"
 import { useRoute, type RouteId } from "@/hooks/use-route"
+import { useDashboardData, type DashboardDataState } from "@/hooks/use-dashboard-data"
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -17,39 +17,48 @@ import { Separator } from "@/components/ui/separator"
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
 import { Skeleton } from "@/components/ui/skeleton"
 import { AppSidebar } from "@/components/dashboard/app-sidebar"
+import { DataSource, ErrorScreen, LoadingScreen } from "@/components/dashboard/data-states"
 import { OverviewPage } from "@/pages/overview-page"
 import { ShipmentsPage } from "@/pages/shipments-page"
 import { StuckPage, type StuckShipment } from "@/pages/stuck-page"
 import type { DashboardData, Filters } from "@/types"
 
-const data = rawData as DashboardData
-
 // הגרף (Recharts) נטען רק כשנכנסים לעמוד, כדי שהסקירה תיטען מהר בטלפון
 const HourlyPage = lazy(() => import("@/pages/hourly-page").then((m) => ({ default: m.HourlyPage })))
-
-const dateLabel = new Date(data.date).toLocaleDateString("he-IL", {
-  weekday: "long",
-  day: "numeric",
-  month: "long",
-  year: "numeric",
-})
-
-const shortDate = new Date(data.date).toLocaleDateString("he-IL", { day: "numeric", month: "long" })
 
 // בטאבלט הסרגל מתחיל מכווץ לאייקונים, כדי להשאיר מקום לתוכן
 const startOpen = typeof window === "undefined" || window.matchMedia("(min-width: 1024px)").matches
 
 const nameOf = (list: { id: string; name: string }[], id: string) => list.find((x) => x.id === id)?.name ?? id
 
+/**
+ * הנתונים נקראים מ-Airtable בכל כניסה (SPEC.md, נתונים מ-Airtable).
+ * עד שיש נתונים: שלד טעינה, או הודעת שגיאה עם "נסה שוב". אין קובץ נתונים באתר.
+ */
 export default function App() {
-  // הסינון חי כאן, מעל העמודים, ולכן מעבר בין עמודים לא מאפס אותו
+  const source = useDashboardData()
+  if (!source.data) {
+    return source.error ? (
+      <ErrorScreen error={source.error} onRetry={source.reload} retrying={source.loading} />
+    ) : (
+      <LoadingScreen />
+    )
+  }
+  return <Dashboard data={source.data} source={source} />
+}
+
+function Dashboard({ data, source }: { data: DashboardData; source: DashboardDataState }) {
+  // הסינון חי כאן, מעל העמודים, ולכן מעבר בין עמודים ורענון נתונים לא מאפסים אותו
   const [filters, setFilters] = useState<Filters>({ warehouseId: "all", contractorId: "all" })
   const { preference, setPreference } = useTheme()
   const route = useRoute()
-  const view = useMemo(() => applyFilters(data, filters) as DashboardData, [filters])
-  const stuck = useMemo(() => stuckShipments(view.shipments, data.now) as StuckShipment[], [view])
+  const view = useMemo(() => applyFilters(data, filters) as DashboardData, [data, filters])
+  const stuck = useMemo(() => stuckShipments(view.shipments, data.now) as StuckShipment[], [view, data.now])
   const crumbs = breadcrumbFor(route) as string[]
   const pageLabel = crumbs[crumbs.length - 1]
+
+  const dateLabel = new Date(data.date).toLocaleDateString("he-IL", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
+  const shortDate = new Date(data.date).toLocaleDateString("he-IL", { day: "numeric", month: "long" })
 
   useEffect(() => {
     document.title = `${pageLabel} · לוח בקרה למלאי ולוגיסטיקה`
@@ -66,7 +75,7 @@ export default function App() {
         onFiltersChange={setFilters}
         preference={preference}
         onPreferenceChange={setPreference}
-        dataLabel={`נתוני דמה · ${shortDate}`}
+        dataLabel={`Airtable · ${shortDate}`}
       />
       <SidebarInset className="min-w-0">
         {/* הכותרת של sidebar-07: כפתור הסרגל, קו מפריד ופירורי לחם */}
@@ -108,13 +117,14 @@ export default function App() {
               />
             )}
             <span className="hidden text-xs text-muted-foreground lg:inline">{dateLabel}</span>
+            <DataSource updatedAt={source.updatedAt} loading={source.loading} error={source.error} onRefresh={source.reload} />
           </div>
         </header>
 
         {/* SidebarInset הוא כבר <main>, ולכן כאן div ולא main נוסף.
             בלי max-width: התוכן ממלא את כל הרוחב שליד הסרגל בכל מסך (SPEC.md, תצוגה ו-RTL) */}
         <div id="content" className="flex w-full flex-col gap-3 px-3 py-4 sm:px-6 md:gap-4 md:py-6">
-          <Page route={route} view={view} stuck={stuck} />
+          <Page route={route} view={view} stuck={stuck} data={data} />
         </div>
       </SidebarInset>
     </SidebarProvider>
@@ -141,7 +151,7 @@ function FilterChip({ label, onRemove, testId }: { label: string; onRemove: () =
   )
 }
 
-function Page({ route, view, stuck }: { route: RouteId; view: DashboardData; stuck: StuckShipment[] }) {
+function Page({ route, view, stuck, data }: { route: RouteId; view: DashboardData; stuck: StuckShipment[]; data: DashboardData }) {
   switch (route) {
     case "shipments":
       return <ShipmentsPage view={view} data={data} />

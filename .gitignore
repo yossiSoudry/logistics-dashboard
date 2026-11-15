@@ -1,3 +1,7 @@
 node_modules/
 dist/
 *.tsbuildinfo
+
+# סודות: רק מקומית (Practice.md)
+.env.local
+.env.*.local

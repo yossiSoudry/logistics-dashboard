@@ -1,6 +1,6 @@
 # לוח בקרה למלאי ולוגיסטיקה
 
-מטלה 4.4 בקורס AiDO, שיעור 3: דאשבורד מלאי ולוגיסטיקה על נתוני דמה.
+מטלה 4.4 בקורס AiDO, שיעורים 3 ו-4: דאשבורד מלאי ולוגיסטיקה על נתוני דמה, שנקראים מבסיס נתונים ב-Airtable.
 
 **האתר:** https://yossisoudry.github.io/logistics-dashboard/
 
@@ -23,6 +23,21 @@
 Vite, React, Tailwind ו-[shadcn/ui](https://ui.shadcn.com) במצב RTL, בערכת הצבעים Twitter של [tweakcn](https://tweakcn.com).
 מצב בהיר, כהה ולפי המערכת. GitHub Actions בונה ומפרסם ל-GitHub Pages בכל דחיפה ל-main.
 
+## נתונים מ-Airtable
+
+הלוח קורא את הנתונים מבסיס Airtable בכל כניסה, ולא מקובץ סטטי. חמש טבלאות עם קשרים ביניהן: `Warehouses`, `Contractors`, `Inventory`, `Shipments`, `Settings` (פירוט ב-[SPEC.md](SPEC.md#נתונים)).
+בכותרת מופיעים מקור הנתונים, שעת העדכון וכפתור רענון: משנים רשומה ב-Airtable, לוחצים רענון, והשינוי מופיע.
+
+**הקמה:**
+1. ב-Airtable: יוצרים בסיס ריק ושני טוקנים ב-[Builder Hub](https://airtable.com/create/tokens), שניהם לבסיס הזה בלבד:
+   - טוקן קריאה לאתר: `data.records:read`.
+   - טוקן כתיבה לטעינה: `data.records:read`, `data.records:write`, `schema.bases:read`, `schema.bases:write`.
+2. מעתיקים את `.env.example` ל-`.env.local` וממלאים (הקובץ לא נכנס ל-git).
+3. `pnpm seed` יוצר את הטבלאות, טוען את `data/mock-data.json` ובודק שמה שחזר מ-Airtable זהה לקובץ. אחרי זה אפשר למחוק את טוקן הכתיבה.
+4. ב-GitHub, תחת Settings › Secrets › Actions: `AIRTABLE_BASE_ID` ו-`AIRTABLE_READ_TOKEN`. הבנייה ב-GitHub Actions מכניסה אותם לאתר.
+
+**אבטחה:** טוקן שהדפדפן משתמש בו גלוי בקוד האתר. לכן הוא קריאה בלבד ולבסיס אחד של נתוני דמה. לנתונים אמיתיים צריך שרת ביניים שמחזיק את המפתח (ב"אחר כך" בספק).
+
 ## הרצה מקומית
 
 ```
@@ -38,4 +53,4 @@ pnpm build
 ```
 
 הבדיקות ב-`test/` נגזרות משורות ה"גמור" ב-SPEC.md. הן רצות עם `node --test` על הלוגיקה הטהורה:
-`src/logic.js` לנתונים, `src/lib/theme.js` למצב הבהיר והכהה ו-`src/lib/routes.js` לניווט.
+`src/logic.js` לנתונים, `src/lib/theme.js` למצב הבהיר והכהה, `src/lib/routes.js` לניווט, ו-`src/lib/airtable.js` עם `src/lib/airtable-client.js` להמרה ולקריאה מ-Airtable (עם fetch מדומה, בלי רשת).
