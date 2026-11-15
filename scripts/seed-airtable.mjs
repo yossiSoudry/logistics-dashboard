@@ -129,6 +129,7 @@ export async function runSeed({ api, baseId, data, dryRun = false, restore = fal
 
     let created = 0;
     let restored = 0;
+    let filled = 0;
     if (!dryRun) {
       for (const batch of chunks(plan.create, 10)) {
         const res = await api("POST", `/${baseId}/${encodeURIComponent(table)}`, { records: batch.map((f) => ({ fields: resolveLinks(f, idOfKey) })) });
@@ -145,6 +146,12 @@ export async function runSeed({ api, baseId, data, dryRun = false, restore = fal
           restored += batch.length;
         }
       }
+      // שדות ריקים: ממלאים רק אותם, בלי לגעת בשדה שנערך (ב---restore הרשומות השונות כבר עודכנו במלואן)
+      const toFill = [...plan.fill, ...(restore ? [] : plan.differs.filter((d) => d.filled.length > 0))];
+      for (const batch of chunks(toFill, 10)) {
+        await api("PATCH", `/${baseId}/${encodeURIComponent(table)}`, { records: batch.map((d) => ({ id: d.id, fields: resolveLinks(d.blanks, idOfKey) })) });
+        filled += batch.length;
+      }
     } else {
       // ב-dry-run אין מזהים חדשים; קישורים לרשומות שהיו נוצרות מסומנים במפתח עצמו
       for (const f of plan.create) idOfKey[table].set(String(f[keyField]).trim(), `(new)${f[keyField]}`);
@@ -157,6 +164,8 @@ export async function runSeed({ api, baseId, data, dryRun = false, restore = fal
       toCreate: plan.create.length,
       created,
       alreadyThere: plan.same.length,
+      toFill: plan.fill.length,
+      filled,
       differs: plan.differs.length,
       restored,
       extraInAirtable: plan.extra.length,
@@ -166,10 +175,11 @@ export async function runSeed({ api, baseId, data, dryRun = false, restore = fal
     report.push(row);
     log(
       `${dryRun ? "·" : "✓"} ${table}: בקובץ ${inFile} = ${dryRun ? "ייווצרו" : "נוצרו"} ${dryRun ? plan.create.length : created}` +
-        ` + כבר היו ${plan.same.length} + שונות ${plan.differs.length}${restore && !dryRun ? ` (שוחזרו ${restored})` : " (נשארו, Airtable הבעלים)"}` +
+        ` + כבר היו ${plan.same.length} + מולאו שדות ריקים ${plan.fill.length} + שונות ${plan.differs.length}${restore && !dryRun ? ` (שוחזרו ${restored})` : " (נשארו, Airtable הבעלים)"}` +
         ` + נדחו ${rejectedHere}` + (plan.extra.length ? ` · מיותרות ב-Airtable: ${plan.extra.length} (לא נמחקו)` : ""),
     );
     for (const d of row.differsDetail) log(`    שונה: ${d}`);
+    for (const f of plan.fill) log(`    ${dryRun ? "יתמלא" : "מולא"}: ${f.key}: ${f.filled.join(", ")}`);
   }
 
   // ספירה יוצאת: מה שיש עכשיו ב-Airtable

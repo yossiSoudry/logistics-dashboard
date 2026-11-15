@@ -134,7 +134,7 @@ test("נקי בכניסה: רווחים בקצוות של מפתח ושם לא �
   field(raw, "warehouses", "north", "Key", { Key: "north ", Name: " צפון " });
   const { data: back, rejected } = fromAirtable(raw);
   assert.deepEqual(rejected, []);
-  assert.deepEqual(back.warehouses.find((w) => w.id === "north"), { id: "north", name: "צפון" });
+  assert.deepEqual(back.warehouses.find((w) => w.id === "north"), { id: "north", name: "צפון", city: "חיפה", geonameId: 294801 });
 });
 
 test("שינוי ב-Airtable (סטטוס של משלוח) מופיע בנתונים", () => {
@@ -149,4 +149,16 @@ test("בלי Now בטבלת Settings: שגיאה ברורה", () => {
   const raw = fakeAirtable(data);
   raw.settings = [];
   assert.throws(() => fromAirtable(raw), /Now/);
+});
+
+test("מיקום (רשות): Geoname ID לא תקין משאיר את המחסן, בלי זמני שבת, ונרשם; בלי מיקום בכלל זה תקין", () => {
+  const raw = fakeAirtable(data);
+  field(raw, "warehouses", "north", "Key", { "Geoname ID": -3 });
+  field(raw, "warehouses", "south", "Key", { "Geoname ID": undefined, City: undefined });
+  const { data: back, rejected } = fromAirtable(raw);
+  assert.deepEqual(rejected, [{ table: "Warehouses", key: "north", reason: "Geoname ID לא תקין: המחסן נכלל, בלי זמני שבת" }]);
+  assert.deepEqual(back.warehouses.find((w) => w.id === "north"), { id: "north", name: "צפון", city: "חיפה" });
+  assert.deepEqual(back.warehouses.find((w) => w.id === "south"), { id: "south", name: "דרום" });
+  assert.equal(back.inventory.length, data.inventory.length);
+  assert.equal(back.shipments.length, data.shipments.length);
 });

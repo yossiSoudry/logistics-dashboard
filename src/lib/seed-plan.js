@@ -63,7 +63,9 @@ const same = (a, b) => {
 /**
  * תוכנית לטבלה אחת. desired: שדות מהקובץ (צורת מפתחות). existing: רשומות קיימות (צורת מפתחות, עם id).
  * create: חסרות. same: קיימות וזהות. differs: קיימות ושונות (Airtable הבעלים: לא נוגעים בלי --restore).
- * extra: ב-Airtable ולא בקובץ (לא נמחקות).
+ * fill: קיימות, וההבדל היחיד הוא שדה ריק ב-Airtable שיש לו ערך בקובץ (למשל שדה חדש). אין עריכה לדרוס, אז ממלאים.
+ * גם ב-differs, השדות הריקים (blanks) מתמלאים; רק השדות שנערכו נשארים.
+ * כל רשומה מהקובץ נמצאת בדיוק באחת מ: create, same, fill, differs. extra: ב-Airtable ולא בקובץ (לא נמחקות).
  */
 export function planTable(table, desired, existing) {
   const keyField = KEY_FIELD[table];
@@ -72,7 +74,7 @@ export function planTable(table, desired, existing) {
     const key = String(r.fields[keyField] ?? "").trim();
     if (key && !byKey.has(key)) byKey.set(key, r);
   }
-  const plan = { table, create: [], same: [], differs: [], extra: [] };
+  const plan = { table, create: [], same: [], fill: [], differs: [], extra: [] };
   const wanted = new Set();
   for (const f of desired) {
     const key = String(f[keyField]).trim();
@@ -83,16 +85,21 @@ export function planTable(table, desired, existing) {
       continue;
     }
     const changed = Object.keys(f).filter((name) => !same(f[name], found.fields[name]));
+    const isBlank = (v) => v === undefined || v === null || v === "" || (Array.isArray(v) && v.length === 0);
+    const blankNames = changed.filter((name) => isBlank(found.fields[name]));
+    const edited = changed.filter((name) => !isBlank(found.fields[name]));
+    const blanks = Object.fromEntries(blankNames.map((name) => [name, f[name]]));
     if (changed.length === 0) plan.same.push(key);
-    else plan.differs.push({ id: found.id, key, fields: f, changed });
+    else if (edited.length === 0) plan.fill.push({ id: found.id, key, blanks, filled: blankNames });
+    else plan.differs.push({ id: found.id, key, fields: f, changed: edited, blanks, filled: blankNames });
   }
   for (const key of byKey.keys()) if (!wanted.has(key)) plan.extra.push(key);
   return plan;
 }
 
-/** ספירה נכנסת: בקובץ = נוצרו + כבר היו + שונות + נדחו בכניסה. אם לא, משהו הולך לאיבוד בשקט. */
+/** ספירה נכנסת: בקובץ = נוצרו + כבר היו + מולאו + שונות + נדחו בכניסה. אם לא, משהו הולך לאיבוד בשקט. */
 export function countsAddUp(inFile, plan, rejectedHere) {
-  return inFile === plan.create.length + plan.same.length + plan.differs.length + rejectedHere;
+  return inFile === plan.create.length + plan.same.length + plan.fill.length + plan.differs.length + rejectedHere;
 }
 
 /** שדות קישור בצורת מפתחות -> מזהי רשומות, לפני כתיבה. */

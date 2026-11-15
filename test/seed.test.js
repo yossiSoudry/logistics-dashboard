@@ -60,7 +60,7 @@ test("בסיס ריק: נוצר הכל, הספירה מסתכמת, והלוח ק
   const m = memoryAirtable({ tables: false });
   const res = await runSeed({ api: m.api, baseId: "appT", data: fresh() });
   assert.equal(sum(res.report, "created"), TOTAL);
-  for (const r of res.report) assert.equal(r.inFile, r.created + r.alreadyThere + r.differs + r.rejectedAtDoor);
+  for (const r of res.report) assert.equal(r.inFile, r.created + r.alreadyThere + r.toFill + r.differs + r.rejectedAtDoor);
   assert.deepEqual(fromAirtable(m.raw()).data, data);
   assert.deepEqual(fromAirtable(m.raw()).rejected, []);
 });
@@ -120,7 +120,7 @@ test("נקי בכניסה: רשומה פגומה בקובץ לא נכתבת, נ�
   const ship = res.report.find((r) => r.table === "Shipments");
   assert.equal(ship.rejectedAtDoor, 1);
   assert.equal(ship.created, data.shipments.length - 1);
-  assert.equal(ship.inFile, ship.created + ship.alreadyThere + ship.differs + ship.rejectedAtDoor);
+  assert.equal(ship.inFile, ship.created + ship.alreadyThere + ship.toFill + ship.differs + ship.rejectedAtDoor);
   assert.ok(!m.db.get("Inventory").records.some((r) => r.fields.SKU === dirty.inventory[0].sku));
 });
 
@@ -140,7 +140,7 @@ test("תוכנית: השוואה לפי מפתח, קישור לפי מפתח ו�
   const existing = raw.inventory.map((r) => ({ id: r.id, fields: { ...r.fields, Warehouse: r.fields.Warehouse.map((id) => keyOf.get(id)) } }));
   const plan = planTable("Inventory", desiredFromFile(data).desired.Inventory, existing);
   assert.equal(plan.same.length, data.inventory.length);
-  assert.equal(plan.create.length + plan.differs.length + plan.extra.length, 0);
+  assert.equal(plan.create.length + plan.fill.length + plan.differs.length + plan.extra.length, 0);
 });
 
 test("429: מחכים ומנסים שוב; שגיאה אחרת לא נשלחת שוב", async () => {
@@ -155,4 +155,28 @@ test("429: מחכים ומנסים שוב; שגיאה אחרת לא נשלחת �
   const failing = airtableApi("t", { wait: async () => {}, fetchImpl: async () => { n++; return { ok: false, status: 500, json: async () => ({}) }; } });
   await assert.rejects(failing("POST", "/x", {}), /HTTP 500/);
   assert.equal(n, 1);
+});
+
+test("שדה חדש: שדה ריק ב-Airtable מתמלא מהקובץ בלי --restore, ועריכה באותה רשומה נשארת", async () => {
+  const m = memoryAirtable();
+  await runSeed({ api: m.api, baseId: "appT", data: fresh() });
+  // כמו בסיס שנטען לפני שהיה שדה מיקום: שני מחסנים בלי City ו-Geoname ID, ובאחד מהם השם נערך ב-Airtable
+  for (const r of m.db.get("Warehouses").records) {
+    if (r.fields.Key !== "center") { delete r.fields.City; delete r.fields["Geoname ID"]; }
+    if (r.fields.Key === "north") r.fields.Name = "צפון (חדש)";
+  }
+  const res = await runSeed({ api: m.api, baseId: "appT", data: fresh() });
+  const row = res.report.find((r) => r.table === "Warehouses");
+  assert.equal(row.toFill, 1);
+  assert.equal(row.differs, 1);
+  assert.equal(row.filled, 2);
+  const north = m.db.get("Warehouses").records.find((r) => r.fields.Key === "north").fields;
+  assert.deepEqual([north.Name, north.City, north["Geoname ID"]], ["צפון (חדש)", "חיפה", 294801]);
+  const south = m.db.get("Warehouses").records.find((r) => r.fields.Key === "south").fields;
+  assert.deepEqual([south.City, south["Geoname ID"]], ["באר שבע", 295530]);
+  // והרצה נוספת: אין מה למלא
+  const writes = m.writes();
+  const again = await runSeed({ api: m.api, baseId: "appT", data: fresh() });
+  assert.equal(m.writes(), writes);
+  assert.equal(again.report.find((r) => r.table === "Warehouses").toFill, 0);
 });

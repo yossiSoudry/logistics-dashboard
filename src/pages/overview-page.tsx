@@ -3,6 +3,8 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { StatusCards } from "@/components/dashboard/status-cards"
 import { InventoryCard } from "@/components/dashboard/inventory-card"
 import { StuckPreviewCard } from "@/components/dashboard/stuck-preview-card"
+import { ShabbatCard } from "@/components/dashboard/shabbat-card"
+import { useShabbat } from "@/hooks/use-shabbat"
 import type { DashboardData, Shipment } from "@/types"
 
 // הגרפים (Recharts) נטענים בעצלות, כך שכרטיסי הסטטוס, התקועים והמלאי מצוירים מיד
@@ -17,17 +19,23 @@ function ChartSkeleton({ className, height }: { className?: string; height: numb
 
 /**
  * רשת ווידג'טים (SPEC.md, סקירה). בטלפון ובטאבלט: עמודה אחת, התקועים קודם.
- * ממסך רחב: עמודה צרה מימין (תקועים, קבלנים, מלאי מול מינימום) ועמודה רחבה משמאל (שעות, טבלת מלאי).
+ * ממסך רחב: עמודה צרה מימין (תקועים, עד כניסת שבת, קבלנים, מלאי מול מינימום) ועמודה רחבה משמאל (שעות, טבלת מלאי).
  */
 export function OverviewPage({
   view,
   data,
   stuck,
+  warehouseId,
+  refreshKey,
 }: {
   view: DashboardData
   data: DashboardData
   stuck: (Shipment & { waitedMinutes: number })[]
+  warehouseId: string
+  refreshKey: unknown
 }) {
+  // מקור חיצוני (Hebcal דרך /api/shabbat): לכל המחסנים, והסינון נעשה בכרטיס
+  const shabbat = useShabbat(data.warehouses, data.now, refreshKey)
   return (
     <>
       <section aria-label="משלוחי היום לפי סטטוס">
@@ -38,18 +46,27 @@ export function OverviewPage({
       <div className="grid items-start gap-3 md:gap-4 xl:grid-cols-3">
         <div className="flex min-w-0 flex-col gap-3 md:gap-4">
           <StuckPreviewCard stuck={stuck} contractors={data.contractors} index={5} />
+          <ShabbatCard
+            warehouses={data.warehouses}
+            stops={shabbat.stops}
+            shipments={view.shipments}
+            now={data.now}
+            warehouseId={warehouseId}
+            onRetry={shabbat.retry}
+            index={6}
+          />
           <Suspense fallback={<ChartSkeleton className="rounded-xl" height={290} />}>
-            <ContractorsChartCard shipments={view.shipments} contractors={data.contractors} index={6} />
+            <ContractorsChartCard shipments={view.shipments} contractors={data.contractors} index={7} />
           </Suspense>
           <Suspense fallback={<ChartSkeleton className="rounded-xl" height={330} />}>
-            <StockBalanceCard inventory={view.inventory} warehouses={data.warehouses} index={7} />
+            <StockBalanceCard inventory={view.inventory} warehouses={data.warehouses} index={8} />
           </Suspense>
         </div>
         <div className="flex min-w-0 flex-col gap-3 md:gap-4 xl:col-span-2">
           <Suspense fallback={<ChartSkeleton className="rounded-xl" height={360} />}>
-            <HourlyMiniCard shipments={view.shipments} now={data.now} index={8} />
+            <HourlyMiniCard shipments={view.shipments} now={data.now} index={9} />
           </Suspense>
-          <InventoryCard inventory={view.inventory} warehouses={data.warehouses} index={9} />
+          <InventoryCard inventory={view.inventory} warehouses={data.warehouses} index={10} />
         </div>
       </div>
     </>

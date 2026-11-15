@@ -126,7 +126,7 @@ function Dashboard({ data, source }: { data: DashboardData; source: DashboardDat
         {/* SidebarInset הוא כבר <main>, ולכן כאן div ולא main נוסף.
             בלי max-width: התוכן ממלא את כל הרוחב שליד הסרגל בכל מסך (SPEC.md, תצוגה ו-RTL) */}
         <div id="content" className="flex w-full flex-col gap-3 px-3 py-4 sm:px-6 md:gap-4 md:py-6">
-          <Page route={route} view={view} stuck={stuck} data={data} />
+          <Page route={route} view={view} stuck={stuck} data={data} warehouseId={filters.warehouseId} refreshKey={source.updatedAt} />
         </div>
       </SidebarInset>
     </SidebarProvider>
@@ -153,7 +153,21 @@ function FilterChip({ label, onRemove, testId }: { label: string; onRemove: () =
   )
 }
 
-function Page({ route, view, stuck, data }: { route: RouteId; view: DashboardData; stuck: StuckShipment[]; data: DashboardData }) {
+function Page({
+  route,
+  view,
+  stuck,
+  data,
+  warehouseId,
+  refreshKey,
+}: {
+  route: RouteId
+  view: DashboardData
+  stuck: StuckShipment[]
+  data: DashboardData
+  warehouseId: string
+  refreshKey: unknown
+}) {
   switch (route) {
     case "shipments":
       return <ShipmentsPage view={view} data={data} />
@@ -166,6 +180,6 @@ function Page({ route, view, stuck, data }: { route: RouteId; view: DashboardDat
         </Suspense>
       )
     default:
-      return <OverviewPage view={view} data={data} stuck={stuck} />
+      return <OverviewPage view={view} data={data} stuck={stuck} warehouseId={warehouseId} refreshKey={refreshKey} />
   }
 }
