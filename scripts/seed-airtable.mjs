@@ -3,7 +3,7 @@
 //   pnpm seed            טוען לבסיס ריק (עוצר אם כבר יש רשומות)
 //   pnpm seed --reset    מוחק את הרשומות בטבלאות של הלוח וטוען מחדש
 //
-// משתנים (.env.local): VITE_AIRTABLE_BASE_ID, AIRTABLE_WRITE_TOKEN
+// משתנים (.env.local): AIRTABLE_BASE_ID, AIRTABLE_WRITE_TOKEN
 // טוקן הכתיבה צריך: data.records:read, data.records:write, schema.bases:read, schema.bases:write
 
 import { readFileSync } from "node:fs";
@@ -11,7 +11,7 @@ import { isDeepStrictEqual } from "node:util";
 import { SCHEMA, TABLES, toAirtableFields } from "../src/lib/airtable.js";
 import { API_URL, listAll, loadDashboard } from "../src/lib/airtable-client.js";
 
-const baseId = process.env.VITE_AIRTABLE_BASE_ID;
+const baseId = process.env.AIRTABLE_BASE_ID;
 const token = process.env.AIRTABLE_WRITE_TOKEN;
 const reset = process.argv.includes("--reset");
 
@@ -21,7 +21,7 @@ function fail(message) {
 }
 
 if (!baseId || !token) {
-  fail("חסרים VITE_AIRTABLE_BASE_ID או AIRTABLE_WRITE_TOKEN ב-.env.local (ראו .env.example).");
+  fail("חסרים AIRTABLE_BASE_ID או AIRTABLE_WRITE_TOKEN ב-.env.local (ראו .env.example).");
 }
 
 const data = JSON.parse(readFileSync(new URL("../data/mock-data.json", import.meta.url), "utf8"));

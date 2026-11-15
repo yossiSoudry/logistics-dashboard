@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "echo 'no install: the function only uses fetch'",
+  "buildCommand": "echo 'api only: the site is on GitHub Pages'",
+  "outputDirectory": "api-home",
+  "functions": {
+    "api/dashboard.js": {
+      "maxDuration": 10
+    }
+  }
+}

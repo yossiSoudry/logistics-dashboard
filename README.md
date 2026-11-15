@@ -34,9 +34,10 @@ Vite, React, Tailwind ו-[shadcn/ui](https://ui.shadcn.com) במצב RTL, בער
    - טוקן כתיבה לטעינה: `data.records:read`, `data.records:write`, `schema.bases:read`, `schema.bases:write`.
 2. מעתיקים את `.env.example` ל-`.env.local` וממלאים (הקובץ לא נכנס ל-git).
 3. `pnpm seed` יוצר את הטבלאות, טוען את `data/mock-data.json` ובודק שמה שחזר מ-Airtable זהה לקובץ. אחרי זה אפשר למחוק את טוקן הכתיבה.
-4. ב-GitHub, תחת Settings › Secrets › Actions: `AIRTABLE_BASE_ID` ו-`AIRTABLE_READ_TOKEN`. הבנייה ב-GitHub Actions מכניסה אותם לאתר.
+4. ב-Vercel, בפרויקט `logistics-dashboard-api`: משתני הסביבה `AIRTABLE_BASE_ID` ו-`AIRTABLE_READ_TOKEN`. הם נשארים בשרת. האתר ב-GitHub Pages נבנה בלי שום טוקן.
 
-**אבטחה:** טוקן שהדפדפן משתמש בו גלוי בקוד האתר. לכן הוא קריאה בלבד ולבסיס אחד של נתוני דמה. לנתונים אמיתיים צריך שרת ביניים שמחזיק את המפתח (ב"אחר כך" בספק).
+**אבטחה:** הדפדפן לא פונה ל-Airtable. הוא פונה לפונקציה אחת ב-Vercel (`api/dashboard.js`), שמחזיקה את טוקן הקריאה, קוראת מ-Airtable ומחזירה רק את הנתונים. כל מה שנמצא בקוד האתר גלוי לכל מי שפותח אותו, ולכן הטוקן לא שם.
+הפונקציה עונה רק לקריאה (GET) ורק לאתר ב-GitHub Pages או ל-localhost. אחרי כל בנייה, `pnpm check:bundle` סורק את קוד האתר ועוצר את הפרסום אם יש בו טוקן או כתובת של Airtable.
 
 ## הרצה מקומית
 
