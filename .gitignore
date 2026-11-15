@@ -2,11 +2,9 @@ node_modules/
 dist/
 *.tsbuildinfo
 
-# סודות: רק מקומית (Practice.md)
-.env.local
-.env.*.local
-.vercel
+# סודות: רק מקומית (Practice.md). התבנית .env.example כן נכנסת.
 .env
 .env.*
 !.env.example
+.vercel
 logs/

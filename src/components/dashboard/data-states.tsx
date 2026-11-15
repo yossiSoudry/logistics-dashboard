@@ -46,7 +46,7 @@ export function ErrorScreen({ error, onRetry, retrying }: { error: AirtableError
           </CardDescription>
         </CardHeader>
         <CardContent className="text-xs text-muted-foreground">
-          הלוח קורא את הנתונים ישירות מבסיס הנתונים ב-Airtable, ואין לו עותק מקומי להציג במקומם.
+          הלוח מקבל את הנתונים מבסיס הנתונים ב-Airtable דרך שרת הנתונים שלו, ואין לו עותק מקומי להציג במקומם.
         </CardContent>
         <CardFooter>
           <Button onClick={onRetry} disabled={retrying} data-testid="retry">

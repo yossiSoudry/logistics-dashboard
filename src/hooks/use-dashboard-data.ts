@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react"
-import { AirtableError, loadDashboard } from "@/lib/airtable-client.js"
+import { AirtableError } from "@/lib/airtable-client.js"
+import { DEFAULT_API_URL, fetchDashboard } from "@/lib/dashboard-api.js"
 import type { DashboardData } from "@/types"
 
-// טוקן קריאה בלבד לבסיס אחד (SPEC.md, נתונים מ-Airtable). מגיע מ-.env.local או מ-GitHub Secrets בבנייה.
-const BASE_ID = import.meta.env.VITE_AIRTABLE_BASE_ID as string | undefined
-const TOKEN = import.meta.env.VITE_AIRTABLE_TOKEN as string | undefined
+// כתובת הפונקציה ב-Vercel שמחזיקה את הטוקן (SPEC.md, נתונים מ-Airtable). ערך ציבורי.
+// VITE_API_URL מאפשר לכוון לפונקציה אחרת בבדיקות. לאתר אין טוקן בכלל.
+const API_URL = (import.meta.env.VITE_API_URL as string | undefined) || DEFAULT_API_URL
 
 export interface DashboardDataState {
   data: DashboardData | null
@@ -15,7 +16,7 @@ export interface DashboardDataState {
 }
 
 /**
- * טוען את הנתונים מ-Airtable בכל כניסה, ומרענן לפי בקשה בלי לטעון את העמוד מחדש.
+ * טוען את הנתונים מ-Airtable (דרך הפונקציה) בכל כניסה, ומרענן לפי בקשה בלי לטעון את העמוד מחדש.
  * ברענון שנכשל הנתונים הקודמים נשארים מוצגים, והשגיאה מוצגת לידם. אין נפילה לקובץ.
  */
 export function useDashboardData(): DashboardDataState {
@@ -31,7 +32,7 @@ export function useDashboardData(): DashboardDataState {
     const id = ++request.current
     setState((s) => ({ ...s, loading: true, error: null }))
     try {
-      const { data } = await loadDashboard({ baseId: BASE_ID, token: TOKEN })
+      const { data } = await fetchDashboard({ apiUrl: API_URL })
       if (id !== request.current) return // תשובה ישנה: בקשה חדשה יותר כבר יצאה
       setState({ data: data as DashboardData, error: null, loading: false, updatedAt: new Date() })
     } catch (e) {

@@ -7,7 +7,7 @@ import { TABLES, fromAirtable } from "./airtable.js";
 export const API_URL = "https://api.airtable.com/v0";
 
 export const ERROR_MESSAGES = {
-  config: "חסרים פרטי החיבור ל-Airtable (מזהה בסיס או טוקן).",
+  config: "חסרים פרטי החיבור לנתונים (כתובת שרת הנתונים, מזהה בסיס או טוקן).",
   auth: "הטוקן של Airtable חסר, לא תקף או שפג תוקפו.",
   forbidden: "לטוקן אין הרשאה לבסיס או לטבלה, או שהבסיס לא קיים.",
   not_found: "הבסיס או אחת הטבלאות לא נמצאו ב-Airtable.",
@@ -15,6 +15,8 @@ export const ERROR_MESSAGES = {
   server: "Airtable לא זמין כרגע.",
   network: "אין חיבור ל-Airtable. בדקו את החיבור לרשת.",
   data: "הנתונים ב-Airtable לא שלמים.",
+  api: "שרת הנתונים של הלוח לא זמין כרגע.",
+  origin: "האתר הזה לא מורשה לקרוא את נתוני הלוח.",
 };
 
 export class AirtableError extends Error {

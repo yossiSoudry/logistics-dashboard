@@ -31,11 +31,10 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
-      # טוקן קריאה בלבד לבסיס אחד (SPEC.md, נתונים מ-Airtable). נכנס לבנייה, לא לריפו.
+      # האתר נבנה בלי שום טוקן: הנתונים מגיעים מהפונקציה ב-Vercel (כתובתה בקוד, ערך ציבורי).
       - run: pnpm build
-        env:
-          VITE_AIRTABLE_BASE_ID: ${{ secrets.AIRTABLE_BASE_ID }}
-          VITE_AIRTABLE_TOKEN: ${{ secrets.AIRTABLE_READ_TOKEN }}
+      # SPEC.md, נתונים מ-Airtable: נכשל (ועוצר את המיזוג והפרסום) אם בקוד האתר יש טוקן או כתובת של Airtable
+      - run: pnpm check:bundle
       - if: github.event_name != 'pull_request'
         uses: actions/configure-pages@v5
       - if: github.event_name != 'pull_request'

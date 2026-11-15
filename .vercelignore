@@ -1,0 +1,16 @@
+# ב-Vercel רק הפונקציה (api/) והקוד שהיא משתמשת בו (src/lib). האתר עצמו ב-GitHub Pages.
+# סודות לא עולים לעולם: הטוקן נכנס דרך משתני הסביבה של Vercel.
+.env
+.env.*
+.env.local
+node_modules
+dist
+test
+scripts
+data
+public
+.github
+src/components
+src/pages
+src/hooks
+*.md
