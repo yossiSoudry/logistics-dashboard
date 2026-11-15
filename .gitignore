@@ -5,3 +5,4 @@ dist/
 # סודות: רק מקומית (Practice.md)
 .env.local
 .env.*.local
+.vercel
