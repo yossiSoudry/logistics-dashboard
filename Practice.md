@@ -20,6 +20,9 @@
 
 - `index.html` – נקודת הכניסה של Vite. כולל סקריפט קטן שמחיל את מצב הצבע לפני הטעינה.
 - `src/logic.js` – חישובים טהורים על הנתונים (סיכום, סינון, מלאי נמוך). בלי DOM ובלי React. זה מה שנבדק.
+- `src/lib/airtable.js` – המרה טהורה בין רשומות Airtable למבנה הנתונים של הלוח, בשני הכיוונים. נבדקת.
+- `src/lib/airtable-client.js` – קריאה מ-Airtable: דפדוף, וסיווג שגיאות להודעות בעברית.
+- `src/hooks/use-dashboard-data.ts` – טוען את הנתונים, מחזיק מצב טעינה ושגיאה, ומרענן.
 - `src/lib/theme.js` – לוגיקה טהורה של מצב בהיר וכהה. נבדקת.
 - `src/lib/routes.js` – רשימת העמודים ופענוח הכתובת (`#/...`). טהור ונבדק.
 - `src/App.tsx` – מעטפת: סרגל צד, כותרת, סינון כללי, ובחירת העמוד לפי הכתובת.
@@ -27,7 +30,9 @@
 - `src/components/` – קומפוננטות הלוח. מקבלות נתונים מ-logic.js ולא מחשבות בעצמן.
 - `src/components/ui/` – קומפוננטות shadcn/ui. נוספות עם `pnpm dlx shadcn@latest add`.
 - `src/index.css` – Tailwind וערכת הצבעים Twitter (משתני CSS לבהיר ולכהה).
-- `data/mock-data.json` – נתוני הדמה.
+- `data/mock-data.json` – נתוני הדמה: מקור הטעינה לבסיס ונתוני הבדיקות. האתר לא קורא אותו.
+- `scripts/seed-airtable.mjs` – יוצר את הטבלאות ב-Airtable וטוען את נתוני הדמה (`pnpm seed`).
+- `.env.example` – רשימת המשתנים. הערכים האמיתיים ב-`.env.local`, שלא נכנס ל-git.
 - `test/` – בדיקות, רצות עם `pnpm test` (`node --test test/*.test.js`).
 - `.github/workflows/deploy.yml` – בנייה ופרסום ל-GitHub Pages.
 
@@ -38,4 +43,6 @@
 - מנהל החבילות הוא pnpm. לא מעלים את `dist/` ל-git; GitHub Actions בונה ומפרסם.
 - הטקסט בממשק בעברית, כיוון RTL. משתמשים רק במחלקות לוגיות (`ms-`, `me-`, `ps-`, `pe-`, `start-`, `end-`, `text-start`) ולא ב-left או right.
 - צבעים רק ממשתני ערכת הצבעים (`bg-card`, `text-muted-foreground` וכו'), כדי שמצב כהה יעבוד בכל מקום.
+- טוקנים וסודות רק ב-`.env.local` וב-GitHub Secrets. לא בקוד, לא בקומיט ולא בצ'אט.
+- לאתר רק טוקן קריאה (`data.records:read`) לבסיס אחד. טוקן כתיבה רק לסקריפט הטעינה.
 - כשהתהליך הזה לא עבד, מתקנים את הקובץ הזה ולא את הצ'אט.
