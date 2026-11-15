@@ -43,21 +43,98 @@ test("זמן: UTC של Airtable -> שעון ישראל ובחזרה", () => {
   for (const s of data.shipments) assert.equal(toLocalIso(fromLocalIso(s.createdAt)), s.createdAt);
 });
 
-test("מה שנטען ל-Airtable חוזר ממנו זהה לקובץ הדמה, גם כשהסדר מעורבב", () => {
-  const { data: back, skipped } = fromAirtable(fakeAirtable(data));
-  assert.equal(skipped, 0);
+test("מה שנטען ל-Airtable חוזר ממנו זהה לקובץ הדמה, גם כשהסדר מעורבב, בלי אף רשומה לא תקינה", () => {
+  const { data: back, rejected } = fromAirtable(fakeAirtable(data));
+  assert.deepEqual(rejected, []);
   assert.deepEqual(back, data);
 });
 
-test("רשומה חסרה או עם סטטוס לא מוכר לא נכנסת, ונספרת", () => {
+// SPEC.md, נתונים / הכללים. כל כלל: רשומה ששוברת אותו לא נכנסת, ומופיעה עם טבלה, מפתח וסיבה.
+const field = (raw, table, key, keyField, patch) => {
+  const r = raw[table].find((x) => x.fields[keyField] === key);
+  Object.assign(r.fields, patch);
+  return r;
+};
+const rejectedOf = (raw) => fromAirtable(raw).rejected.map((r) => `${r.table}:${r.key}:${r.reason}`);
+
+test("חובה: בלי מפתח, בלי שם, בלי לקוח, בלי מחסן", () => {
   const raw = fakeAirtable(data);
-  raw.shipments[0] = { ...raw.shipments[0], fields: { ...raw.shipments[0].fields, Status: "אבד" } };
-  raw.shipments[1] = { ...raw.shipments[1], fields: { ...raw.shipments[1].fields, ID: undefined } };
-  raw.inventory[0] = { ...raw.inventory[0], fields: { ...raw.inventory[0].fields, Warehouse: undefined } };
-  const { data: back, skipped } = fromAirtable(raw);
-  assert.equal(skipped, 3);
-  assert.equal(back.shipments.length, data.shipments.length - 2);
-  assert.equal(back.inventory.length, data.inventory.length - 1);
+  field(raw, "shipments", "SH-1001", "ID", { ID: "" });
+  field(raw, "inventory", "SKU-001", "SKU", { Name: "  " });
+  field(raw, "shipments", "SH-1002", "ID", { Customer: undefined });
+  field(raw, "inventory", "SKU-002", "SKU", { Warehouse: [] });
+  const out = rejectedOf(raw);
+  assert.deepEqual(out.sort(), [
+    "Inventory:SKU-001:חסר Name",
+    "Inventory:SKU-002:חסר מחסן",
+    "Shipments:(בלי מפתח):חסר ID",
+    "Shipments:SH-1002:חסר Customer",
+  ].sort());
+});
+
+test("ייחודי: מפתח כפול - הרשומה שנוצרה ראשונה נשארת, השנייה נדחית", () => {
+  const raw = fakeAirtable(data);
+  const original = raw.shipments.find((r) => r.fields.ID === "SH-1000");
+  original.createdTime = "2026-11-15T00:00:00.000Z";
+  raw.shipments.push({ id: "recDUP", createdTime: "2026-11-15T09:00:00.000Z", fields: { ...original.fields, Customer: "כפול" } });
+  const { data: back, rejected } = fromAirtable(raw);
+  assert.deepEqual(rejected, [{ table: "Shipments", key: "SH-1000", reason: "ID כפול: הרשומה הראשונה נשארת" }]);
+  assert.equal(back.shipments.find((s) => s.id === "SH-1000").customer, "כהן");
+  assert.equal(back.shipments.length, data.shipments.length);
+});
+
+test("תקין: כמות ומינימום שלמים ואפס ומעלה; אפס תקין", () => {
+  const raw = fakeAirtable(data);
+  field(raw, "inventory", "SKU-001", "SKU", { Quantity: -1 });
+  field(raw, "inventory", "SKU-002", "SKU", { Minimum: 2.5 });
+  field(raw, "inventory", "SKU-003", "SKU", { Quantity: undefined });
+  field(raw, "inventory", "SKU-004", "SKU", { Quantity: 0 });
+  const { data: back, rejected } = fromAirtable(raw);
+  assert.deepEqual(rejected.map((r) => r.key), ["SKU-001", "SKU-002", "SKU-003"]);
+  assert.equal(back.inventory.find((i) => i.sku === "SKU-004").quantity, 0);
+});
+
+test("תקין: סטטוס אחד מארבעה, ומשלוח ביום של Now ולא אחריו", () => {
+  const raw = fakeAirtable(data);
+  field(raw, "shipments", "SH-1000", "ID", { Status: "אבד" });
+  field(raw, "shipments", "SH-1001", "ID", { "Created At": "2026-11-07T10:00:00.000Z" });
+  field(raw, "shipments", "SH-1002", "ID", { "Created At": "2026-11-08T17:00:00.000Z" }); // 19:00 בישראל, אחרי Now
+  const out = rejectedOf(raw);
+  assert.deepEqual(out, [
+    "Shipments:SH-1000:סטטוס לא מוכר: אבד",
+    "Shipments:SH-1001:Created At לא ביום 2026-11-08",
+    "Shipments:SH-1002:Created At אחרי Now",
+  ]);
+});
+
+test("מחובר: קישור לרשומה אחת קיימת ותקינה; מחסן שנדחה מושך איתו את מה שמצביע עליו", () => {
+  const raw = fakeAirtable(data);
+  field(raw, "shipments", "SH-1000", "ID", { Contractor: ["recNOPE"] });
+  field(raw, "shipments", "SH-1001", "ID", { Warehouse: ["recW0", "recW1"] });
+  field(raw, "warehouses", "south", "Key", { Name: "" });
+  const { data: back, rejected } = fromAirtable(raw);
+  const reasons = Object.fromEntries(rejected.map((r) => [`${r.table}:${r.key}`, r.reason]));
+  assert.equal(reasons["Warehouses:south"], "חסר Name");
+  assert.equal(reasons["Shipments:SH-1000"], "הקבלן לא קיים או לא תקין");
+  assert.equal(reasons["Shipments:SH-1001"], "יותר ממחסן אחד");
+  const south = data.inventory.filter((i) => i.warehouseId === "south").length;
+  assert.equal(rejected.filter((r) => r.table === "Inventory" && r.reason === "המחסן לא קיים או לא תקין").length, south);
+  assert.ok(back.inventory.every((i) => i.warehouseId !== "south"));
+  assert.ok(back.shipments.every((s) => s.warehouseId !== "south"));
+});
+
+test("הגדרות: בדיוק רשומה אחת עם Now", () => {
+  const raw = fakeAirtable(data);
+  raw.settings.push({ ...raw.settings[0], id: "recX9" });
+  assert.throws(() => fromAirtable(raw), /רשומה אחת עם Now, ויש 2/);
+});
+
+test("נקי בכניסה: רווחים בקצוות של מפתח ושם לא יוצרים עובדה חדשה", () => {
+  const raw = fakeAirtable(data);
+  field(raw, "warehouses", "north", "Key", { Key: "north ", Name: " צפון " });
+  const { data: back, rejected } = fromAirtable(raw);
+  assert.deepEqual(rejected, []);
+  assert.deepEqual(back.warehouses.find((w) => w.id === "north"), { id: "north", name: "צפון" });
 });
 
 test("שינוי ב-Airtable (סטטוס של משלוח) מופיע בנתונים", () => {

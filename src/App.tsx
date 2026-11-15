@@ -18,6 +18,7 @@ import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/s
 import { Skeleton } from "@/components/ui/skeleton"
 import { AppSidebar } from "@/components/dashboard/app-sidebar"
 import { DataSource, ErrorScreen, LoadingScreen } from "@/components/dashboard/data-states"
+import { RejectedRecords } from "@/components/dashboard/rejected-records"
 import { OverviewPage } from "@/pages/overview-page"
 import { ShipmentsPage } from "@/pages/shipments-page"
 import { StuckPage, type StuckShipment } from "@/pages/stuck-page"
@@ -117,6 +118,7 @@ function Dashboard({ data, source }: { data: DashboardData; source: DashboardDat
               />
             )}
             <span className="hidden text-xs text-muted-foreground lg:inline">{dateLabel}</span>
+            <RejectedRecords rejected={source.rejected} />
             <DataSource updatedAt={source.updatedAt} loading={source.loading} error={source.error} onRefresh={source.reload} />
           </div>
         </header>

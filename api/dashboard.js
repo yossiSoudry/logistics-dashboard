@@ -26,6 +26,12 @@ function headers(origin, extra = {}) {
 
 const json = (status, body, origin, extra) => new Response(JSON.stringify(body), { status, headers: headers(origin, extra) });
 
+/**
+ * התשובה נשמרת עשר שניות בשרת של Vercel, לא בדפדפן (SPEC.md, נתונים / קצב):
+ * הרבה צופים יחד לא עוברים את המגבלה של Airtable, 5 בקשות בשנייה לבסיס.
+ */
+export const CDN_CACHE_SECONDS = 10;
+
 /** סוג שגיאה של Airtable -> קוד HTTP של הפונקציה. config = הגדרה חסרה אצלנו. */
 const STATUS_FOR_KIND = { config: 500, data: 502 };
 
@@ -48,7 +54,7 @@ export async function handleDashboard(request, env = process.env, fetchImpl = fe
   }
   try {
     const result = await loadDashboard({ baseId: env.AIRTABLE_BASE_ID, token: env.AIRTABLE_READ_TOKEN, fetchImpl });
-    return json(200, result, origin);
+    return json(200, result, origin, { "Vercel-CDN-Cache-Control": `max-age=${CDN_CACHE_SECONDS}` });
   } catch (e) {
     const kind = e instanceof AirtableError ? e.kind : "server";
     // לא מחזירים את detail: הוא עלול לכלול פרטים פנימיים של Airtable

@@ -28,6 +28,8 @@ test("מהאתר ב-GitHub Pages: 200, הנתונים זהים לקובץ, בל�
   const res = await handleDashboard(req(PAGES), env, fetchImpl);
   assert.equal(res.status, 200);
   assert.equal(res.headers.get("cache-control"), "no-store");
+  // קצב: עשר שניות בשרת של Vercel, לא בדפדפן
+  assert.equal(res.headers.get("vercel-cdn-cache-control"), "max-age=10");
   assert.equal(res.headers.get("access-control-allow-origin"), PAGES);
   const body = await res.json();
   assert.deepEqual(body.data, data);
@@ -84,4 +86,16 @@ test("בלי משתני סביבה: 500 עם סוג config", async () => {
   const res = await handleDashboard(req(PAGES), {}, airtableOk().fetchImpl);
   assert.equal(res.status, 500);
   assert.equal((await res.json()).error.kind, "config");
+});
+
+test("רשומות לא תקינות מגיעות לאתר עם טבלה, מפתח וסיבה; שגיאה לא נשמרת בשרת", async () => {
+  const raw = fakeAirtable(data);
+  raw.shipments.find((r) => r.fields.ID === "SH-1000").fields.Status = "אבד";
+  const byTable = { Warehouses: raw.warehouses, Contractors: raw.contractors, Inventory: raw.inventory, Shipments: raw.shipments, Settings: raw.settings };
+  const fetchImpl = async (url) => ({ ok: true, status: 200, json: async () => ({ records: byTable[decodeURIComponent(new URL(url).pathname.split("/").pop())] }) });
+  const body = await (await handleDashboard(req(PAGES), env, fetchImpl)).json();
+  assert.deepEqual(body.rejected, [{ table: "Shipments", key: "SH-1000", reason: "סטטוס לא מוכר: אבד" }]);
+  assert.equal(body.data.shipments.length, data.shipments.length - 1);
+  const err = await handleDashboard(req(PAGES), env, async () => ({ ok: false, status: 500, json: async () => ({}) }));
+  assert.equal(err.headers.get("vercel-cdn-cache-control"), null);
 });

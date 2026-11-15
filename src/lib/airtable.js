@@ -98,70 +98,103 @@ export function fromLocalIso(localIso, timeZone = TIME_ZONE) {
 // Airtable -> לוח
 
 const byKey = (a, b) => String(a).localeCompare(String(b), "en", { numeric: true });
-const firstLink = (value) => (Array.isArray(value) ? value[0] : undefined);
+const text = (v) => (typeof v === "string" ? v.trim() : "");
+const isCount = (v) => Number.isInteger(v) && v >= 0;
+
+/** הסדר שבו "הראשונה נשארת" במפתח כפול: לפי זמן היצירה ב-Airtable, ואז המזהה. */
+const byCreated = (list) =>
+  [...list].sort((a, b) => String(a.createdTime ?? "").localeCompare(String(b.createdTime ?? "")) || String(a.id).localeCompare(String(b.id)));
+
+const TABLE_ORDER = Object.values(TABLES);
 
 /**
- * רשומות Airtable (לפי טבלה) -> מבנה הנתונים של הלוח.
- * מיון לפי המפתח הראשי, כדי שהסדר לא יהיה תלוי בסדר שבו Airtable מחזיר רשומות.
- * רשומה חסרה (בלי מפתח, סטטוס לא מוכר, בלי תאריך) לא נכנסת, ונספרת ב-skipped.
+ * רשומות Airtable (לפי טבלה) -> מבנה הנתונים של הלוח, אחרי בדיקת הכללים (SPEC.md, נתונים / הכללים).
+ * Airtable אוכף רק סוג שדה; כאן, בדלת היחידה לנתונים, נבדקים חובה, ייחודי, תקין ומחובר.
+ * רשומה ששוברת כלל לא נכנסת, ומופיעה ב-rejected עם טבלה, מפתח וסיבה.
+ * מיון לפי המפתח, כדי שהסדר לא יהיה תלוי בסדר שבו Airtable מחזיר רשומות.
  */
 export function fromAirtable({ warehouses, contractors, inventory, shipments, settings }) {
-  const warehouseKey = new Map(warehouses.map((r) => [r.id, r.fields.Key]));
-  const contractorKey = new Map(contractors.map((r) => [r.id, r.fields.Key]));
-  let skipped = 0;
-  const keep = (ok) => {
-    if (!ok) skipped += 1;
-    return ok;
+  const rejected = [];
+  const reject = (table, key, reason) => rejected.push({ table, key: key || "(בלי מפתח)", reason });
+
+  // הגדרות: בדיוק רשומה אחת עם Now. בלי "עכשיו" אין מה להציג, ולכן זו שגיאה ולא דחייה.
+  const withNow = settings.filter((r) => r.fields.Now);
+  if (withNow.length === 0) throw new Error("חסר השדה Now בטבלת Settings");
+  if (withNow.length > 1) throw new Error(`בטבלת Settings צריכה להיות רשומה אחת עם Now, ויש ${withNow.length}`);
+  const now = toLocalIso(withNow[0].fields.Now);
+  const date = now.slice(0, 10);
+
+  /** מפתח חובה וייחודי (הראשונה נשארת), ואז הבדיקה של הטבלה. מחזיר מזהה רשומה -> שורה תקינה. */
+  function checkTable(table, list, keyField, check) {
+    const seen = new Set();
+    const valid = new Map();
+    for (const r of byCreated(list)) {
+      const key = text(r.fields[keyField]);
+      if (!key) {
+        reject(table, "", `חסר ${keyField}`);
+        continue;
+      }
+      if (seen.has(key)) {
+        reject(table, key, `${keyField} כפול: הרשומה הראשונה נשארת`);
+        continue;
+      }
+      seen.add(key);
+      const row = check(r.fields, key);
+      if (typeof row === "string") reject(table, key, row);
+      else valid.set(r.id, row);
+    }
+    return valid;
+  }
+
+  /** קישור: בדיוק רשומה אחת, קיימת ותקינה. */
+  const link = (value, targets, what) => {
+    if (!Array.isArray(value) || value.length === 0) return { error: `חסר ${what}` };
+    if (value.length > 1) return { error: `יותר מ${what} אחד` };
+    const target = targets.get(value[0]);
+    return target ? { id: target.id } : { error: `ה${what} לא קיים או לא תקין` };
   };
 
-  const nowField = settings.find((r) => r.fields.Now)?.fields.Now;
-  if (!nowField) throw new Error("חסר השדה Now בטבלת Settings");
-  const now = toLocalIso(nowField);
+  const named = (f, key) => (text(f.Name) ? { id: key, name: text(f.Name) } : "חסר Name");
+  const warehouseRows = checkTable(TABLES.warehouses, warehouses, "Key", named);
+  const contractorRows = checkTable(TABLES.contractors, contractors, "Key", named);
 
-  const result = {
-    date: now.slice(0, 10),
-    now,
-    warehouses: warehouses
-      .filter((r) => keep(Boolean(r.fields.Key)))
-      .map((r) => ({ id: r.fields.Key, name: r.fields.Name ?? r.fields.Key }))
-      .sort((a, b) => byKey(a.id, b.id)),
-    contractors: contractors
-      .filter((r) => keep(Boolean(r.fields.Key)))
-      .map((r) => ({ id: r.fields.Key, name: r.fields.Name ?? r.fields.Key }))
-      .sort((a, b) => byKey(a.id, b.id)),
-    inventory: inventory
-      .filter((r) => keep(Boolean(r.fields.SKU && warehouseKey.get(firstLink(r.fields.Warehouse)))))
-      .map((r) => ({
-        sku: r.fields.SKU,
-        name: r.fields.Name ?? r.fields.SKU,
-        warehouseId: warehouseKey.get(firstLink(r.fields.Warehouse)),
-        quantity: r.fields.Quantity ?? 0,
-        minimum: r.fields.Minimum ?? 0,
-      }))
-      .sort((a, b) => byKey(a.sku, b.sku)),
-    shipments: shipments
-      .filter((r) =>
-        keep(
-          Boolean(
-            r.fields.ID &&
-              STATUS_FROM_AIRTABLE[r.fields.Status] &&
-              r.fields["Created At"] &&
-              warehouseKey.get(firstLink(r.fields.Warehouse)) &&
-              contractorKey.get(firstLink(r.fields.Contractor)),
-          ),
-        ),
-      )
-      .map((r) => ({
-        id: r.fields.ID,
-        customer: r.fields.Customer ?? "",
-        warehouseId: warehouseKey.get(firstLink(r.fields.Warehouse)),
-        contractorId: contractorKey.get(firstLink(r.fields.Contractor)),
-        status: STATUS_FROM_AIRTABLE[r.fields.Status],
-        createdAt: toLocalIso(r.fields["Created At"]),
-      }))
-      .sort((a, b) => byKey(a.id, b.id)),
+  const inventoryRows = checkTable(TABLES.inventory, inventory, "SKU", (f, sku) => {
+    if (!text(f.Name)) return "חסר Name";
+    const w = link(f.Warehouse, warehouseRows, "מחסן");
+    if (w.error) return w.error;
+    if (!isCount(f.Quantity)) return "Quantity צריך להיות מספר שלם, אפס ומעלה";
+    if (!isCount(f.Minimum)) return "Minimum צריך להיות מספר שלם, אפס ומעלה";
+    return { sku, name: text(f.Name), warehouseId: w.id, quantity: f.Quantity, minimum: f.Minimum };
+  });
+
+  const shipmentRows = checkTable(TABLES.shipments, shipments, "ID", (f, id) => {
+    if (!text(f.Customer)) return "חסר Customer";
+    const w = link(f.Warehouse, warehouseRows, "מחסן");
+    if (w.error) return w.error;
+    const c = link(f.Contractor, contractorRows, "קבלן");
+    if (c.error) return c.error;
+    const status = STATUS_FROM_AIRTABLE[f.Status];
+    if (!status) return f.Status ? `סטטוס לא מוכר: ${f.Status}` : "חסר Status";
+    if (!f["Created At"]) return "חסר Created At";
+    const createdAt = toLocalIso(f["Created At"]);
+    if (createdAt.slice(0, 10) !== date) return `Created At לא ביום ${date}`;
+    if (createdAt > now) return "Created At אחרי Now";
+    return { id, customer: text(f.Customer), warehouseId: w.id, contractorId: c.id, status, createdAt };
+  });
+
+  const sorted = (map, key) => [...map.values()].sort((a, b) => byKey(a[key], b[key]));
+  rejected.sort((a, b) => TABLE_ORDER.indexOf(a.table) - TABLE_ORDER.indexOf(b.table) || byKey(a.key, b.key));
+  return {
+    data: {
+      date,
+      now,
+      warehouses: sorted(warehouseRows, "id"),
+      contractors: sorted(contractorRows, "id"),
+      inventory: sorted(inventoryRows, "sku"),
+      shipments: sorted(shipmentRows, "id"),
+    },
+    rejected,
   };
-  return { data: result, skipped };
 }
 
 // ---------------------------------------------------------------------------

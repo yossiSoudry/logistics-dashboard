@@ -2,7 +2,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { loadMockData } from "./helpers.js";
-import { fetchDashboard } from "../src/lib/dashboard-api.js";
+import { fetchDashboard, AUTO_REFRESH_MS } from "../src/lib/dashboard-api.js";
 import { ERROR_MESSAGES } from "../src/lib/airtable-client.js";
 
 const data = loadMockData();
@@ -12,12 +12,17 @@ test("פונה ל-/api/dashboard בכתובת הפונקציה, בלי טוקן 
   let seen;
   const out = await fetchDashboard({
     apiUrl: "https://fn.example/",
-    fetchImpl: async (url, init) => ((seen = { url, init }), res(200, { data, skipped: 0 })),
+    fetchImpl: async (url, init) => ((seen = { url, init }), res(200, { data, rejected: [{ table: "Shipments", key: "SH-1", reason: "x" }] })),
   });
   assert.equal(seen.url, "https://fn.example/api/dashboard");
   assert.equal(seen.init.headers.Authorization, undefined);
   assert.ok(!seen.url.includes("airtable"));
   assert.deepEqual(out.data, data);
+  assert.deepEqual(out.rejected, [{ table: "Shipments", key: "SH-1", reason: "x" }]);
+});
+
+test("קצב: רענון אוטומטי כל חמש דקות", () => {
+  assert.equal(AUTO_REFRESH_MS, 300_000);
 });
 
 test("סוג השגיאה מהפונקציה הופך להודעה בעברית", async () => {
