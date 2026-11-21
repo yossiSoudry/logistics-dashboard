@@ -8,6 +8,7 @@ export const API_URL = "https://api.airtable.com/v0";
 
 export const ERROR_MESSAGES = {
   config: "חסרים פרטי החיבור לנתונים (כתובת שרת הנתונים, מזהה בסיס או טוקן).",
+  now: "הגדרת הזמן בשרת (DEMO_NOW) לא תקינה: צריך תאריך ושעה, למשל 2026-11-08T18:00:00.",
   auth: "הטוקן של Airtable חסר, לא תקף או שפג תוקפו.",
   forbidden: "לטוקן אין הרשאה לבסיס או לטבלה, או שהבסיס לא קיים.",
   not_found: "הבסיס או אחת הטבלאות לא נמצאו ב-Airtable.",
@@ -67,14 +68,14 @@ export async function listAll({ baseId, token, table, fetchImpl = fetch }) {
   return records;
 }
 
-/** קורא את חמש הטבלאות במקביל וממיר למבנה של הלוח. */
-export async function loadDashboard({ baseId, token, fetchImpl = fetch }) {
+/** קורא את ארבע הטבלאות במקביל וממיר למבנה של הלוח, לפי "עכשיו" שמגיע מהשרת. */
+export async function loadDashboard({ baseId, token, now, fetchImpl = fetch }) {
   if (!baseId || !token) throw new AirtableError("config");
   const names = Object.entries(TABLES);
   const lists = await Promise.all(names.map(([, table]) => listAll({ baseId, token, table, fetchImpl })));
   const raw = Object.fromEntries(names.map(([key], i) => [key, lists[i]]));
   try {
-    return fromAirtable(raw);
+    return fromAirtable(raw, now);
   } catch (e) {
     throw new AirtableError("data", String(e?.message ?? e));
   }

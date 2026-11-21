@@ -22,6 +22,7 @@ export function ShabbatCard({
   stops,
   shipments,
   now,
+  nowSource = "demo",
   warehouseId,
   onRetry,
   className,
@@ -31,6 +32,7 @@ export function ShabbatCard({
   stops: Record<string, ShabbatEntry>
   shipments: Shipment[]
   now: string
+  nowSource?: "demo" | "clock"
   warehouseId: string
   onRetry: () => void
   className?: string
@@ -48,7 +50,7 @@ export function ShabbatCard({
         </CardTitle>
         <CardDescription className="text-xs">
           הדלקת הנרות הקרובה בעיר של כל מחסן, ומשלוחים שעוד פתוחים.
-          <span className="block" data-testid="shabbat-now">{`נכון ל${dayAndTime(now)} (זמן הדמו)`}</span>
+          <span className="block" data-testid="shabbat-now">{`נכון ל${dayAndTime(now)} (${nowSource === "clock" ? "שעון השרת" : "זמן הדמו"})`}</span>
         </CardDescription>
       </CardHeader>
       <CardContent>

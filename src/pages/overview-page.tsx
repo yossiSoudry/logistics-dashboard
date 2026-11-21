@@ -51,6 +51,7 @@ export function OverviewPage({
             stops={shabbat.stops}
             shipments={view.shipments}
             now={data.now}
+            nowSource={data.nowSource}
             warehouseId={warehouseId}
             onRetry={shabbat.retry}
             index={6}

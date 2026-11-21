@@ -22,7 +22,6 @@ export function fakeAirtable(source) {
     contractors: records(fields.contractors, "", (f) => ids.contractors.get(f.Key)).reverse(),
     inventory: records(fields.inventory, "recI").reverse(),
     shipments: records(fields.shipments, "recS").reverse(),
-    settings: records(fields.settings, "recX"),
   };
 }
 

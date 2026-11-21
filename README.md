@@ -25,7 +25,7 @@ Vite, React, Tailwind ו-[shadcn/ui](https://ui.shadcn.com) במצב RTL, בער
 
 ## נתונים מ-Airtable
 
-הלוח קורא את הנתונים מבסיס Airtable בכל כניסה, ולא מקובץ סטטי. חמש טבלאות עם קשרים ביניהן: `Warehouses`, `Contractors`, `Inventory`, `Shipments`, `Settings` (פירוט ב-[SPEC.md](SPEC.md#נתונים)).
+הלוח קורא את הנתונים מבסיס Airtable בכל כניסה, ולא מקובץ סטטי. ארבע טבלאות עם קשרים ביניהן: `Warehouses`, `Contractors`, `Inventory`, `Shipments` (פירוט ב-[SPEC.md](SPEC.md#נתונים)).
 בכותרת מופיעים מקור הנתונים, שעת העדכון וכפתור רענון: משנים רשומה ב-Airtable, לוחצים רענון, והשינוי מופיע.
 
 **הקמה:**
@@ -34,7 +34,7 @@ Vite, React, Tailwind ו-[shadcn/ui](https://ui.shadcn.com) במצב RTL, בער
    - טוקן כתיבה לטעינה: `data.records:read`, `data.records:write`, `schema.bases:read`, `schema.bases:write`.
 2. מעתיקים את `.env.example` ל-`.env` וממלאים (הקובץ לא נכנס ל-git).
 3. `pnpm seed -- --dry-run` (חזרה גנרלית, בלי לכתוב), ואז `pnpm seed`: יוצר את הטבלאות ואת הרשומות החסרות, סופר נכנס ויוצא, ובודק שהלוח קורא בדיוק את הקובץ. בטוח להרצה חוזרת, ולא דורס עריכה שנעשתה ב-Airtable (רק `--restore` מחזיר את נתוני הדמה). כל הרצה נרשמת ב-`logs/`. אחרי הטעינה אפשר למחוק את טוקן הכתיבה.
-4. ב-Vercel, בפרויקט `logistics-dashboard-api`: משתני הסביבה `AIRTABLE_BASE_ID` ו-`AIRTABLE_READ_TOKEN`. הם נשארים בשרת. האתר ב-GitHub Pages נבנה בלי שום טוקן.
+4. ב-Vercel, בפרויקט `logistics-dashboard-api`: משתני הסביבה `AIRTABLE_BASE_ID` ו-`AIRTABLE_READ_TOKEN`, ו-`DEMO_NOW=2026-11-08T18:00:00` (ה"עכשיו" של הדמו; בלעדיו הלוח לפי השעון של השרת). הם נשארים בשרת. האתר ב-GitHub Pages נבנה בלי שום טוקן.
 
 **אבטחה:** הדפדפן לא פונה ל-Airtable. הוא פונה לפונקציה אחת ב-Vercel (`api/dashboard.js`), שמחזיקה את טוקן הקריאה, קוראת מ-Airtable ומחזירה רק את הנתונים. כל מה שנמצא בקוד האתר גלוי לכל מי שפותח אותו, ולכן הטוקן לא שם.
 הפונקציה עונה רק לקריאה (GET) ורק לאתר ב-GitHub Pages או ל-localhost. אחרי כל בנייה, `pnpm check:bundle` סורק את קוד האתר ועוצר את הפרסום אם יש בו טוקן או כתובת של Airtable.

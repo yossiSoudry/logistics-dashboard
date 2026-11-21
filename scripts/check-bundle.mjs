@@ -16,7 +16,7 @@ function files(dir) {
 const CHECKS = [
   { name: "טוקן של Airtable (pat...)", re: /pat[A-Za-z0-9]{14}\.[a-f0-9]{64}/ },
   { name: "כתובת ה-API של Airtable", re: /api\.airtable\.com/ },
-  { name: "כתובת ה-API של Hebcal (רק הפונקציה פונה אליו)", re: /hebcal\.com\/shabbat/ },
+  { name: "כתובת ה-API של Hebcal (רק הפונקציה פונה אליו)", re: /hebcal\.com\/(shabbat|hebcal)/ },
   { name: "נתוני הדמה מהקובץ", re: /SH-1000/ },
 ];
 

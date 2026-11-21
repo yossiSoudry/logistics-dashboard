@@ -1,4 +1,7 @@
 {
+  "title": "Hebcal Tel Aviv November 2026",
+  "date": "2026-11-21T18:52:02.849Z",
+  "version": "6.16.1-5.0.0",
   "location": {
     "title": "Tel Aviv, Israel",
     "city": "Tel Aviv",
@@ -15,7 +18,7 @@
   },
   "range": {
     "start": "2026-11-09",
-    "end": "2026-11-14"
+    "end": "2026-11-21"
   },
   "items": [
     {
@@ -64,12 +67,46 @@
       "category": "parashat",
       "title_orig": "Parashat Toldot",
       "hebrew": "פרשת תולדות",
-      "link": "https://hebcal.com/s/5787i/6?us=js&um=api",
-      "memo": "פרשת תולדות פותחת בלידת התאומים עשו ויעקב ליצחק ורבקה. עשו מוכר את בכורתו ליעקב בתמורה לנזיד עדשים. יצחק ורבקה נוסעים לגרר, ושם יצחק כורת ברית עם אבימלך מלך גרר. בעצת רבקה יעקב לובש בגדים העשויים מעורו של שעיר עיזים כדי להידמות לעשו ומבקש מאביו במרמה את ברכת הבכורה. יצחק כהה העינים נותן לו את ברכת הבכורה, ואחר כך מברך גם את עשו. יעקב בורח לבית דודו לבן מפני כעסו של אחיו עשו."
+      "link": "https://hebcal.com/s/5787i/6?us=js&um=api"
     },
     {
       "title": "הַבְדָּלָה: 17:20",
       "date": "2026-11-14T17:20:00+02:00",
+      "category": "havdalah",
+      "title_orig": "Havdalah",
+      "hebrew": "הבדלה"
+    },
+    {
+      "title": "יוֹם בֶּן־גּוּרִיּוֹן",
+      "date": "2026-11-16",
+      "hdate": "6 Kislev 5787",
+      "category": "holiday",
+      "subcat": "modern",
+      "title_orig": "Ben-Gurion Day",
+      "hebrew": "יום בן־גוריון",
+      "link": "https://hebcal.com/h/ben-gurion-day-2026?i=on&us=js&um=api",
+      "memo": "יום המציין את חייו וחזונו של ראש הממשלה הראשון של ישראל, דוד בן-גוריון"
+    },
+    {
+      "title": "הַדְלָקַת נֵרוֹת: 16:18",
+      "date": "2026-11-20T16:18:00+02:00",
+      "category": "candles",
+      "title_orig": "Candle lighting",
+      "hebrew": "הדלקת נרות",
+      "memo": "פָּרָשַׁת וַיֵּצֵא"
+    },
+    {
+      "title": "פָּרָשַׁת וַיֵּצֵא",
+      "date": "2026-11-21",
+      "hdate": "11 Kislev 5787",
+      "category": "parashat",
+      "title_orig": "Parashat Vayetzei",
+      "hebrew": "פרשת ויצא",
+      "link": "https://hebcal.com/s/5787i/7?us=js&um=api"
+    },
+    {
+      "title": "הַבְדָּלָה: 17:17",
+      "date": "2026-11-21T17:17:00+02:00",
       "category": "havdalah",
       "title_orig": "Havdalah",
       "hebrew": "הבדלה"
