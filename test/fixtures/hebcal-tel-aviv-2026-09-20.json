@@ -1,0 +1,205 @@
+{
+  "title": "Hebcal Tel Aviv 2026",
+  "date": "2026-11-21T18:48:49.738Z",
+  "version": "6.16.1-5.0.0",
+  "location": {
+    "title": "Tel Aviv, Israel",
+    "city": "Tel Aviv",
+    "tzid": "Asia/Jerusalem",
+    "latitude": 32.08088,
+    "longitude": 34.78057,
+    "cc": "IL",
+    "country": "Israel",
+    "elevation": 15,
+    "admin1": "Tel Aviv",
+    "asciiname": "Tel Aviv",
+    "geo": "geoname",
+    "geonameid": 293397
+  },
+  "range": {
+    "start": "2026-09-20",
+    "end": "2026-10-03"
+  },
+  "items": [
+    {
+      "title": "עֶרֶב יוֹם כִּפּוּר",
+      "date": "2026-09-20",
+      "hdate": "9 Tishrei 5787",
+      "category": "holiday",
+      "subcat": "major",
+      "title_orig": "Erev Yom Kippur",
+      "hebrew": "ערב יום כיפור",
+      "link": "https://hebcal.com/h/yom-kippur-2026?i=on&us=js&um=api",
+      "memo": "ערב יום הכיפורים, הכולל את תפילת כל נדרי. צום יום הכיפורים מתחיל עם שקיעת החמה ונמשך 25 שעות"
+    },
+    {
+      "title": "הַדְלָקַת נֵרוֹת: 18:20",
+      "date": "2026-09-20T18:20:00+03:00",
+      "category": "candles",
+      "title_orig": "Candle lighting",
+      "hebrew": "הדלקת נרות",
+      "memo": "עֶרֶב יוֹם כִּפּוּר"
+    },
+    {
+      "title": "יוֹם כִּפּוּר",
+      "date": "2026-09-21",
+      "hdate": "10 Tishrei 5787",
+      "category": "holiday",
+      "subcat": "major",
+      "yomtov": true,
+      "title_orig": "Yom Kippur",
+      "hebrew": "יום כיפור",
+      "link": "https://hebcal.com/h/yom-kippur-2026?i=on&us=js&um=api",
+      "memo": "יום הכיפורים. היום הקדוש ביותר בשנה ביהדות, המצוין באופן מסורתי בצום של 25 שעות ותפילה אינטנסיבית"
+    },
+    {
+      "title": "הַבְדָּלָה: 19:15",
+      "date": "2026-09-21T19:15:00+03:00",
+      "category": "havdalah",
+      "title_orig": "Havdalah",
+      "hebrew": "הבדלה",
+      "memo": "יוֹם כִּפּוּר"
+    },
+    {
+      "title": "עֶרֶב סֻכּוֹת",
+      "date": "2026-09-25",
+      "hdate": "14 Tishrei 5787",
+      "category": "holiday",
+      "subcat": "major",
+      "title_orig": "Erev Sukkot",
+      "hebrew": "ערב סוכות",
+      "link": "https://hebcal.com/h/sukkot-2026?i=on&us=js&um=api",
+      "memo": "חג הסוכות. החג שנמשך שבעה ימים הוא אחד משלושת הרגלים"
+    },
+    {
+      "title": "הַדְלָקַת נֵרוֹת: 18:13",
+      "date": "2026-09-25T18:13:00+03:00",
+      "category": "candles",
+      "title_orig": "Candle lighting",
+      "hebrew": "הדלקת נרות",
+      "memo": "עֶרֶב סֻכּוֹת"
+    },
+    {
+      "title": "סוֹף זְמַן קִדּוּשׁ לְבָנָה",
+      "date": "2026-09-25T18:13:00+03:00",
+      "category": "zmanim",
+      "subcat": "kiddushLevana",
+      "title_orig": "Latest Kiddush Levana",
+      "hebrew": "סוף זמן קידוש לבנה"
+    },
+    {
+      "title": "סֻכּוֹת א׳",
+      "date": "2026-09-26",
+      "hdate": "15 Tishrei 5787",
+      "category": "holiday",
+      "subcat": "major",
+      "yomtov": true,
+      "title_orig": "Sukkot I",
+      "hebrew": "סוכות א׳",
+      "link": "https://hebcal.com/h/sukkot-2026?i=on&us=js&um=api",
+      "memo": "חג הסוכות. החג שנמשך שבעה ימים הוא אחד משלושת הרגלים"
+    },
+    {
+      "title": "הַבְדָּלָה: 19:09",
+      "date": "2026-09-26T19:09:00+03:00",
+      "category": "havdalah",
+      "title_orig": "Havdalah",
+      "hebrew": "הבדלה",
+      "memo": "סֻכּוֹת א׳"
+    },
+    {
+      "title": "סֻכּוֹת ב׳ (חוה״מ)",
+      "date": "2026-09-27",
+      "hdate": "16 Tishrei 5787",
+      "category": "holiday",
+      "subcat": "major",
+      "title_orig": "Sukkot II (CH''M)",
+      "hebrew": "סוכות ב׳ (חוה״מ)",
+      "link": "https://hebcal.com/h/sukkot-2026?i=on&us=js&um=api",
+      "memo": "חג הסוכות. החג שנמשך שבעה ימים הוא אחד משלושת הרגלים"
+    },
+    {
+      "title": "סֻכּוֹת ג׳ (חוה״מ)",
+      "date": "2026-09-28",
+      "hdate": "17 Tishrei 5787",
+      "category": "holiday",
+      "subcat": "major",
+      "title_orig": "Sukkot III (CH''M)",
+      "hebrew": "סוכות ג׳ (חוה״מ)",
+      "link": "https://hebcal.com/h/sukkot-2026?i=on&us=js&um=api",
+      "memo": "חג הסוכות. החג שנמשך שבעה ימים הוא אחד משלושת הרגלים"
+    },
+    {
+      "title": "סֻכּוֹת ד׳ (חוה״מ)",
+      "date": "2026-09-29",
+      "hdate": "18 Tishrei 5787",
+      "category": "holiday",
+      "subcat": "major",
+      "title_orig": "Sukkot IV (CH''M)",
+      "hebrew": "סוכות ד׳ (חוה״מ)",
+      "link": "https://hebcal.com/h/sukkot-2026?i=on&us=js&um=api",
+      "memo": "חג הסוכות. החג שנמשך שבעה ימים הוא אחד משלושת הרגלים"
+    },
+    {
+      "title": "סֻכּוֹת ה׳ (חוה״מ)",
+      "date": "2026-09-30",
+      "hdate": "19 Tishrei 5787",
+      "category": "holiday",
+      "subcat": "major",
+      "title_orig": "Sukkot V (CH''M)",
+      "hebrew": "סוכות ה׳ (חוה״מ)",
+      "link": "https://hebcal.com/h/sukkot-2026?i=on&us=js&um=api",
+      "memo": "חג הסוכות. החג שנמשך שבעה ימים הוא אחד משלושת הרגלים"
+    },
+    {
+      "title": "סֻכּוֹת ו׳ (חוה״מ)",
+      "date": "2026-10-01",
+      "hdate": "20 Tishrei 5787",
+      "category": "holiday",
+      "subcat": "major",
+      "title_orig": "Sukkot VI (CH''M)",
+      "hebrew": "סוכות ו׳ (חוה״מ)",
+      "link": "https://hebcal.com/h/sukkot-2026?i=on&us=js&um=api",
+      "memo": "חג הסוכות. החג שנמשך שבעה ימים הוא אחד משלושת הרגלים"
+    },
+    {
+      "title": "סֻכּוֹת ז׳ (הוֹשַׁעְנָא רַבָּה)",
+      "date": "2026-10-02",
+      "hdate": "21 Tishrei 5787",
+      "category": "holiday",
+      "subcat": "major",
+      "title_orig": "Sukkot VII (Hoshana Raba)",
+      "hebrew": "סוכות ז׳ (הושענא רבה)",
+      "link": "https://hebcal.com/h/sukkot-2026?i=on&us=js&um=api",
+      "memo": "חג הסוכות. החג שנמשך שבעה ימים הוא אחד משלושת הרגלים"
+    },
+    {
+      "title": "הַדְלָקַת נֵרוֹת: 18:04",
+      "date": "2026-10-02T18:04:00+03:00",
+      "category": "candles",
+      "title_orig": "Candle lighting",
+      "hebrew": "הדלקת נרות",
+      "memo": "סֻכּוֹת ז׳ (הוֹשַׁעְנָא רַבָּה)"
+    },
+    {
+      "title": "שְׁמִינִי עֲצֶרֶת",
+      "date": "2026-10-03",
+      "hdate": "22 Tishrei 5787",
+      "category": "holiday",
+      "subcat": "major",
+      "yomtov": true,
+      "title_orig": "Shmini Atzeret",
+      "hebrew": "שמיני עצרת",
+      "link": "https://hebcal.com/h/shmini-atzeret-2026?i=on&us=js&um=api",
+      "memo": "שמיני עצרת. חל מיד לאחר סוכות; בתפוצות נחגג כחג נפרד ובישראל משולב עם שמחת תורה"
+    },
+    {
+      "title": "הַבְדָּלָה: 19:00",
+      "date": "2026-10-03T19:00:00+03:00",
+      "category": "havdalah",
+      "title_orig": "Havdalah",
+      "hebrew": "הבדלה",
+      "memo": "שְׁמִינִי עֲצֶרֶת"
+    }
+  ]
+}

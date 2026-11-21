@@ -1,6 +1,6 @@
 // המרה טהורה בין רשומות Airtable למבנה הנתונים של הלוח, בשני הכיוונים.
 // בלי רשת ובלי DOM. נבדק ב-test/airtable.test.js.
-// SPEC.md, "נתונים": חמש טבלאות, שמות באנגלית, ערכים בעברית, קשרים בשדות קישור.
+// SPEC.md, "נתונים": ארבע טבלאות, שמות באנגלית, ערכים בעברית, קשרים בשדות קישור.
 
 export const TIME_ZONE = "Asia/Jerusalem";
 
@@ -9,7 +9,6 @@ export const TABLES = {
   contractors: "Contractors",
   inventory: "Inventory",
   shipments: "Shipments",
-  settings: "Settings",
 };
 
 /** הסטטוסים נשמרים ב-Airtable בעברית, כדי שיהיה נוח לערוך אותם שם. */
@@ -65,13 +64,15 @@ export const SCHEMA = [
       { name: "Created At", ...DATE_TIME },
     ],
   },
-  { name: TABLES.settings, fields: [{ name: "Name", ...TEXT }, { name: "Now", ...DATE_TIME }] },
 ];
 
 // ---------------------------------------------------------------------------
 // זמן: Airtable מחזיר תאריך ושעה כ-UTC. הלוח עובד בשעון ישראל, בלי אזור זמן במחרוזת.
 
 /** "2026-11-08T05:05:00.000Z" -> "2026-11-08T07:05:00" (שעון ישראל) */
+/** "2026-11-08T18:00:00": תאריך ושעה מקומיים, בלי אזור זמן. */
+export const LOCAL_DATETIME = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$/;
+
 export function toLocalIso(utcIso, timeZone = TIME_ZONE) {
   const parts = Object.fromEntries(
     new Intl.DateTimeFormat("en-CA", {
@@ -115,16 +116,12 @@ const TABLE_ORDER = Object.values(TABLES);
  * Airtable אוכף רק סוג שדה; כאן, בדלת היחידה לנתונים, נבדקים חובה, ייחודי, תקין ומחובר.
  * רשומה ששוברת כלל לא נכנסת, ומופיעה ב-rejected עם טבלה, מפתח וסיבה.
  * מיון לפי המפתח, כדי שהסדר לא יהיה תלוי בסדר שבו Airtable מחזיר רשומות.
+ * now: "עכשיו" בשעון ישראל, מהשרת (src/lib/now.js). הגדרה ולא נתון, ולכן לא מגיע מ-Airtable.
  */
-export function fromAirtable({ warehouses, contractors, inventory, shipments, settings }) {
+export function fromAirtable({ warehouses, contractors, inventory, shipments }, now) {
+  if (!LOCAL_DATETIME.test(String(now ?? ""))) throw new Error(`"עכשיו" לא תקין: ${now}`);
   const rejected = [];
   const reject = (table, key, reason) => rejected.push({ table, key: key || "(בלי מפתח)", reason });
-
-  // הגדרות: בדיוק רשומה אחת עם Now. בלי "עכשיו" אין מה להציג, ולכן זו שגיאה ולא דחייה.
-  const withNow = settings.filter((r) => r.fields.Now);
-  if (withNow.length === 0) throw new Error("חסר השדה Now בטבלת Settings");
-  if (withNow.length > 1) throw new Error(`בטבלת Settings צריכה להיות רשומה אחת עם Now, ויש ${withNow.length}`);
-  const now = toLocalIso(withNow[0].fields.Now);
   const date = now.slice(0, 10);
 
   /** מפתח חובה וייחודי (הראשונה נשארת), ואז הבדיקה של הטבלה. מחזיר מזהה רשומה -> שורה תקינה. */
@@ -144,7 +141,7 @@ export function fromAirtable({ warehouses, contractors, inventory, shipments, se
       seen.add(key);
       const row = check(r.fields, key);
       if (typeof row === "string") reject(table, key, row);
-      else valid.set(r.id, row);
+      else if (row) valid.set(r.id, row); // null: תקין, אבל לא שייך ללוח הזה (משלוח מיום אחר)
     }
     return valid;
   }
@@ -191,8 +188,8 @@ export function fromAirtable({ warehouses, contractors, inventory, shipments, se
     if (!status) return f.Status ? `סטטוס לא מוכר: ${f.Status}` : "חסר Status";
     if (!f["Created At"]) return "חסר Created At";
     const createdAt = toLocalIso(f["Created At"]);
-    if (createdAt.slice(0, 10) !== date) return `Created At לא ביום ${date}`;
-    if (createdAt > now) return "Created At אחרי Now";
+    if (createdAt > now) return "Created At אחרי \"עכשיו\"";
+    if (createdAt.slice(0, 10) !== date) return null; // מיום קודם: לא שגוי, פשוט לא ממשלוחי היום
     return { id, customer: text(f.Customer), warehouseId: w.id, contractorId: c.id, status, createdAt };
   });
 
@@ -235,6 +232,5 @@ export function toAirtableFields(data, ids = { warehouses: new Map(), contractor
       Status: STATUS_TO_AIRTABLE[s.status],
       "Created At": fromLocalIso(s.createdAt),
     })),
-    settings: [{ Name: "dashboard", Now: fromLocalIso(data.now) }],
   };
 }

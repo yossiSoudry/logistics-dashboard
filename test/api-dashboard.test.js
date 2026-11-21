@@ -6,7 +6,7 @@ import { handleDashboard, isAllowedOrigin } from "../api/dashboard.js";
 
 const data = loadMockData();
 const TOKEN = "patTESTTESTTESTTE.0123456789abcdef";
-const env = { AIRTABLE_BASE_ID: "appTEST", AIRTABLE_READ_TOKEN: TOKEN };
+const env = { AIRTABLE_BASE_ID: "appTEST", AIRTABLE_READ_TOKEN: TOKEN, DEMO_NOW: data.now };
 const PAGES = "https://yossisoudry.github.io";
 
 const req = (origin, method = "GET") =>
@@ -14,7 +14,7 @@ const req = (origin, method = "GET") =>
 
 function airtableOk() {
   const raw = fakeAirtable(data);
-  const byTable = { Warehouses: raw.warehouses, Contractors: raw.contractors, Inventory: raw.inventory, Shipments: raw.shipments, Settings: raw.settings };
+  const byTable = { Warehouses: raw.warehouses, Contractors: raw.contractors, Inventory: raw.inventory, Shipments: raw.shipments };
   const seen = [];
   const fetchImpl = async (url, init) => {
     seen.push({ url, auth: init?.headers?.Authorization });
@@ -32,9 +32,9 @@ test("מהאתר ב-GitHub Pages: 200, הנתונים זהים לקובץ, בל�
   assert.equal(res.headers.get("vercel-cdn-cache-control"), "max-age=10");
   assert.equal(res.headers.get("access-control-allow-origin"), PAGES);
   const body = await res.json();
-  assert.deepEqual(body.data, data);
-  // הפונקציה היא זו שפונה ל-Airtable, עם הטוקן
-  assert.equal(seen.length, 5);
+  assert.deepEqual(body.data, { ...data, nowSource: "demo" });
+  // הפונקציה היא זו שפונה ל-Airtable, עם הטוקן: ארבע טבלאות, בלי Settings
+  assert.equal(seen.length, 4);
   assert.ok(seen.every((s) => s.auth === `Bearer ${TOKEN}` && s.url.startsWith("https://api.airtable.com/")));
 });
 
@@ -91,11 +91,30 @@ test("בלי משתני סביבה: 500 עם סוג config", async () => {
 test("רשומות לא תקינות מגיעות לאתר עם טבלה, מפתח וסיבה; שגיאה לא נשמרת בשרת", async () => {
   const raw = fakeAirtable(data);
   raw.shipments.find((r) => r.fields.ID === "SH-1000").fields.Status = "אבד";
-  const byTable = { Warehouses: raw.warehouses, Contractors: raw.contractors, Inventory: raw.inventory, Shipments: raw.shipments, Settings: raw.settings };
+  const byTable = { Warehouses: raw.warehouses, Contractors: raw.contractors, Inventory: raw.inventory, Shipments: raw.shipments };
   const fetchImpl = async (url) => ({ ok: true, status: 200, json: async () => ({ records: byTable[decodeURIComponent(new URL(url).pathname.split("/").pop())] }) });
   const body = await (await handleDashboard(req(PAGES), env, fetchImpl)).json();
   assert.deepEqual(body.rejected, [{ table: "Shipments", key: "SH-1000", reason: "סטטוס לא מוכר: אבד" }]);
   assert.equal(body.data.shipments.length, data.shipments.length - 1);
   const err = await handleDashboard(req(PAGES), env, async () => ({ ok: false, status: 500, json: async () => ({}) }));
   assert.equal(err.headers.get("vercel-cdn-cache-control"), null);
+});
+
+test("DEMO_NOW לא תקין: 500 עם סוג now, בלי לפנות ל-Airtable", async () => {
+  const { fetchImpl, seen } = airtableOk();
+  const res = await handleDashboard(req(PAGES), { ...env, DEMO_NOW: "2026-02-31T10:00:00" }, fetchImpl);
+  assert.equal(res.status, 500);
+  assert.equal((await res.json()).error.kind, "now");
+  assert.equal(seen.length, 0);
+});
+
+test("בלי DEMO_NOW: \"עכשיו\" מהשעון של השרת, ומסומן ככזה", async () => {
+  const { fetchImpl } = airtableOk();
+  const { DEMO_NOW, ...clockEnv } = env;
+  const body = await (await handleDashboard(req(PAGES), clockEnv, fetchImpl, new Date("2026-11-08T14:30:00Z"))).json();
+  assert.equal(body.data.now, "2026-11-08T16:30:00");
+  assert.equal(body.data.nowSource, "clock");
+  // באותו יום: מה שנוצר עד 16:30 בלוח, מה שאחרי נדחה כ"אחרי עכשיו"
+  assert.ok(body.data.shipments.every((s) => s.createdAt <= "2026-11-08T16:30:00"));
+  assert.ok(body.rejected.every((r) => r.reason === 'Created At אחרי "עכשיו"'));
 });

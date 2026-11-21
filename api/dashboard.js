@@ -1,9 +1,11 @@
 // הפונקציה ב-Vercel: מחזיקה את הטוקן של Airtable, קוראת ממנו ומחזירה לאתר רק את הנתונים.
 // SPEC.md, "גמור": נתונים מ-Airtable. הטוקן לא מגיע לדפדפן.
 //
-// משתני סביבה ב-Vercel: AIRTABLE_BASE_ID, AIRTABLE_READ_TOKEN (קריאה בלבד, לבסיס אחד).
+// משתני סביבה ב-Vercel: AIRTABLE_BASE_ID, AIRTABLE_READ_TOKEN (קריאה בלבד, לבסיס אחד),
+// ו-DEMO_NOW ("עכשיו" של הדמו; בלעדיו השעון של השרת). src/lib/now.js.
 
 import { AirtableError, loadDashboard } from "../src/lib/airtable-client.js";
+import { resolveNow } from "../src/lib/now.js";
 
 /** האתר ב-GitHub Pages, ופיתוח מקומי. כל מקור אחר מקבל 403. */
 export const ALLOWED_ORIGINS = ["https://yossisoudry.github.io"];
@@ -33,12 +35,12 @@ export const json = (status, body, origin, extra) => new Response(JSON.stringify
 export const CDN_CACHE_SECONDS = 10;
 
 /** סוג שגיאה של Airtable -> קוד HTTP של הפונקציה. config = הגדרה חסרה אצלנו. */
-const STATUS_FOR_KIND = { config: 500, data: 502 };
+const STATUS_FOR_KIND = { config: 500, now: 500, data: 502 };
 
 /**
  * מטפל בבקשה. env ו-fetchImpl מוזרקים כדי שאפשר לבדוק בלי רשת (test/api-dashboard.test.js).
  */
-export async function handleDashboard(request, env = process.env, fetchImpl = fetch) {
+export async function handleDashboard(request, env = process.env, fetchImpl = fetch, clock = new Date()) {
   const origin = request.headers.get("origin");
   if (!isAllowedOrigin(origin)) {
     return json(403, { error: { kind: "origin", message: "המקור הזה לא מורשה לקרוא את נתוני הלוח." } }, origin);
@@ -53,7 +55,11 @@ export async function handleDashboard(request, env = process.env, fetchImpl = fe
     return json(405, { error: { kind: "method", message: "רק קריאה (GET)." } }, origin, { Allow: "GET, OPTIONS" });
   }
   try {
-    const result = await loadDashboard({ baseId: env.AIRTABLE_BASE_ID, token: env.AIRTABLE_READ_TOKEN, fetchImpl });
+    // "עכשיו" לא תקין = שגיאת הגדרה, לפני שפונים ל-Airtable
+    const time = resolveNow(env, clock);
+    if (!time) throw new AirtableError("now");
+    const result = await loadDashboard({ baseId: env.AIRTABLE_BASE_ID, token: env.AIRTABLE_READ_TOKEN, now: time.now, fetchImpl });
+    result.data.nowSource = time.source;
     return json(200, result, origin, { "Vercel-CDN-Cache-Control": `max-age=${CDN_CACHE_SECONDS}` });
   } catch (e) {
     const kind = e instanceof AirtableError ? e.kind : "server";

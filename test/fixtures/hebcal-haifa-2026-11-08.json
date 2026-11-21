@@ -1,0 +1,115 @@
+{
+  "title": "Hebcal Haifa November 2026",
+  "date": "2026-11-21T18:52:03.026Z",
+  "version": "6.16.1-5.0.0",
+  "location": {
+    "title": "Haifa, Israel",
+    "city": "Haifa",
+    "tzid": "Asia/Jerusalem",
+    "latitude": 32.81303,
+    "longitude": 34.99928,
+    "cc": "IL",
+    "country": "Israel",
+    "elevation": 101,
+    "admin1": "Haifa",
+    "asciiname": "Haifa",
+    "geo": "geoname",
+    "geonameid": 294801
+  },
+  "range": {
+    "start": "2026-11-09",
+    "end": "2026-11-21"
+  },
+  "items": [
+    {
+      "title": "חַג הַסִּיגְד",
+      "date": "2026-11-09",
+      "hdate": "29 Cheshvan 5787",
+      "category": "holiday",
+      "subcat": "modern",
+      "title_orig": "Sigd",
+      "hebrew": "חג הסיגד",
+      "link": "https://hebcal.com/h/sigd-2026?i=on&us=js&um=api",
+      "memo": "הסיגד, חג של יהדות אתיופיה החל 50 יום לאחר יום הכיפורים"
+    },
+    {
+      "title": "רֹאשׁ חוֹדֶשׁ כִּסְלֵו",
+      "date": "2026-11-10",
+      "hdate": "30 Cheshvan 5787",
+      "category": "roshchodesh",
+      "title_orig": "Rosh Chodesh Kislev",
+      "hebrew": "ראש חודש כסלו",
+      "link": "https://hebcal.com/h/rosh-chodesh-kislev-2026?i=on&us=js&um=api",
+      "memo": "תחילת חודש כסלו בלוח העברי. כסלו הוא החודש ה-3 בשנה העברית האזרחית והחודש ה-9 בשנה העברית המקראית. יש בו 30 או 29 ימים והוא מקביל לנובמבר או דצמבר בלוח הגרגוריאני. ראש חודש הוא מועד המצוין בתחילת כל חודש בלוח העברי ומסומן על ידי מולד הלבנה"
+    },
+    {
+      "title": "רֹאשׁ חוֹדֶשׁ כִּסְלֵו",
+      "date": "2026-11-11",
+      "hdate": "1 Kislev 5787",
+      "category": "roshchodesh",
+      "title_orig": "Rosh Chodesh Kislev",
+      "hebrew": "ראש חודש כסלו",
+      "link": "https://hebcal.com/h/rosh-chodesh-kislev-2026?i=on&us=js&um=api",
+      "memo": "תחילת חודש כסלו בלוח העברי. כסלו הוא החודש ה-3 בשנה העברית האזרחית והחודש ה-9 בשנה העברית המקראית. יש בו 30 או 29 ימים והוא מקביל לנובמבר או דצמבר בלוח הגרגוריאני. ראש חודש הוא מועד המצוין בתחילת כל חודש בלוח העברי ומסומן על ידי מולד הלבנה"
+    },
+    {
+      "title": "הַדְלָקַת נֵרוֹת: 16:09",
+      "date": "2026-11-13T16:09:00+02:00",
+      "category": "candles",
+      "title_orig": "Candle lighting",
+      "hebrew": "הדלקת נרות",
+      "memo": "פָּרָשַׁת תּוֹלְדוֹת"
+    },
+    {
+      "title": "פָּרָשַׁת תּוֹלְדוֹת",
+      "date": "2026-11-14",
+      "hdate": "4 Kislev 5787",
+      "category": "parashat",
+      "title_orig": "Parashat Toldot",
+      "hebrew": "פרשת תולדות",
+      "link": "https://hebcal.com/s/5787i/6?us=js&um=api"
+    },
+    {
+      "title": "הַבְדָּלָה: 17:18",
+      "date": "2026-11-14T17:18:00+02:00",
+      "category": "havdalah",
+      "title_orig": "Havdalah",
+      "hebrew": "הבדלה"
+    },
+    {
+      "title": "יוֹם בֶּן־גּוּרִיּוֹן",
+      "date": "2026-11-16",
+      "hdate": "6 Kislev 5787",
+      "category": "holiday",
+      "subcat": "modern",
+      "title_orig": "Ben-Gurion Day",
+      "hebrew": "יום בן־גוריון",
+      "link": "https://hebcal.com/h/ben-gurion-day-2026?i=on&us=js&um=api",
+      "memo": "יום המציין את חייו וחזונו של ראש הממשלה הראשון של ישראל, דוד בן-גוריון"
+    },
+    {
+      "title": "הַדְלָקַת נֵרוֹת: 16:06",
+      "date": "2026-11-20T16:06:00+02:00",
+      "category": "candles",
+      "title_orig": "Candle lighting",
+      "hebrew": "הדלקת נרות",
+      "memo": "פָּרָשַׁת וַיֵּצֵא"
+    },
+    {
+      "title": "פָּרָשַׁת וַיֵּצֵא",
+      "date": "2026-11-21",
+      "hdate": "11 Kislev 5787",
+      "category": "parashat",
+      "title_orig": "Parashat Vayetzei",
+      "hebrew": "פרשת ויצא",
+      "link": "https://hebcal.com/s/5787i/7?us=js&um=api"
+    },
+    {
+      "title": "הַבְדָּלָה: 17:15",
+      "date": "2026-11-21T17:15:00+02:00",
+      "category": "havdalah",
+      "title_orig": "Havdalah",
+      "hebrew": "הבדלה"
+    }
+  ]
+}

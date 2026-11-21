@@ -24,16 +24,16 @@ test("דפדוף: טבלה עם יותר מ-100 רשומות נטענת במלו
 
 test("הטוקן נשלח בכותרת Authorization ולא בכתובת", async () => {
   let seen;
-  await listAll({ baseId: "appX", token: "patSECRET", table: "Settings", fetchImpl: async (url, init) => ((seen = { url, init }), json(200, { records: [] })) });
+  await listAll({ baseId: "appX", token: "patSECRET", table: "Shipments", fetchImpl: async (url, init) => ((seen = { url, init }), json(200, { records: [] })) });
   assert.equal(seen.init.headers.Authorization, "Bearer patSECRET");
   assert.ok(!seen.url.includes("patSECRET"));
 });
 
-test("קריאה מלאה של חמש הטבלאות מחזירה את נתוני הדמה", async () => {
+test("קריאה מלאה של ארבע הטבלאות מחזירה את נתוני הדמה", async () => {
   const raw = fakeAirtable(data);
-  const byTable = { Warehouses: raw.warehouses, Contractors: raw.contractors, Inventory: raw.inventory, Shipments: raw.shipments, Settings: raw.settings };
+  const byTable = { Warehouses: raw.warehouses, Contractors: raw.contractors, Inventory: raw.inventory, Shipments: raw.shipments };
   const fetchImpl = async (url) => json(200, { records: byTable[decodeURIComponent(new URL(url).pathname.split("/").pop())] });
-  const { data: back } = await loadDashboard({ baseId: "appX", token: "t", fetchImpl });
+  const { data: back } = await loadDashboard({ baseId: "appX", token: "t", now: data.now, fetchImpl });
   assert.deepEqual(back, data);
 });
 

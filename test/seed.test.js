@@ -7,7 +7,7 @@ import { desiredFromFile, planTable } from "../src/lib/seed-plan.js";
 import { SCHEMA, fromAirtable } from "../src/lib/airtable.js";
 
 const data = loadMockData();
-const TOTAL = 3 + 4 + data.inventory.length + data.shipments.length + 1;
+const TOTAL = 3 + 4 + data.inventory.length + data.shipments.length;
 
 /** Airtable בזיכרון: מבנה, רשומות, דפדוף, יצירה ועדכון. failAfter: ליפול אחרי N יצירות. */
 function memoryAirtable({ tables = true, failAfter = Infinity } = {}) {
@@ -49,7 +49,7 @@ function memoryAirtable({ tables = true, failAfter = Infinity } = {}) {
   };
   const raw = () => ({
     warehouses: db.get("Warehouses").records, contractors: db.get("Contractors").records, inventory: db.get("Inventory").records,
-    shipments: db.get("Shipments").records, settings: db.get("Settings").records,
+    shipments: db.get("Shipments").records,
   });
   return { api, db, calls, raw, net, writes: () => calls.POST + calls.PATCH };
 }
@@ -61,8 +61,8 @@ test("בסיס ריק: נוצר הכל, הספירה מסתכמת, והלוח ק
   const res = await runSeed({ api: m.api, baseId: "appT", data: fresh() });
   assert.equal(sum(res.report, "created"), TOTAL);
   for (const r of res.report) assert.equal(r.inFile, r.created + r.alreadyThere + r.toFill + r.differs + r.rejectedAtDoor);
-  assert.deepEqual(fromAirtable(m.raw()).data, data);
-  assert.deepEqual(fromAirtable(m.raw()).rejected, []);
+  assert.deepEqual(fromAirtable(m.raw(), data.now).data, data);
+  assert.deepEqual(fromAirtable(m.raw(), data.now).rejected, []);
 });
 
 test("פעמיים: הרצה שנייה לא כותבת כלום ולא מכפילה", async () => {
@@ -97,8 +97,8 @@ test("נכשל באמצע: הרצה חוזרת משלימה רק את מה שח�
   m.net.failAfter = Infinity; // הרשת חזרה
   const res = await runSeed({ api: m.api, baseId: "appT", data: fresh() });
   assert.equal(sum(res.report, "created"), TOTAL - partial);
-  assert.deepEqual(fromAirtable(m.raw()).data, data);
-  assert.deepEqual(fromAirtable(m.raw()).rejected, []);
+  assert.deepEqual(fromAirtable(m.raw(), data.now).data, data);
+  assert.deepEqual(fromAirtable(m.raw(), data.now).rejected, []);
 });
 
 test("חזרה גנרלית: --dry-run לא כותב כלום, וסופר מה ייווצר", async () => {

@@ -9,11 +9,10 @@ export const KEY_FIELD = {
   [TABLES.contractors]: "Key",
   [TABLES.inventory]: "SKU",
   [TABLES.shipments]: "ID",
-  [TABLES.settings]: "Name",
 };
 
 /** סדר הכתיבה: קודם מה שמקשרים אליו. */
-export const WRITE_ORDER = [TABLES.warehouses, TABLES.contractors, TABLES.inventory, TABLES.shipments, TABLES.settings];
+export const WRITE_ORDER = [TABLES.warehouses, TABLES.contractors, TABLES.inventory, TABLES.shipments];
 
 const LINKS = { Warehouse: TABLES.warehouses, Contractor: TABLES.contractors };
 const TABLE_KEY = Object.fromEntries(Object.entries(TABLES).map(([k, v]) => [v, k]));
@@ -28,12 +27,8 @@ export function desiredFromFile(data) {
   // אותה בדיקה כמו בפונקציה: הקובץ כאילו נקרא מ-Airtable, קישורים לפי מפתח
   const asRecords = (list, table) => list.map((f, i) => ({ id: table === TABLES.warehouses || table === TABLES.contractors ? f.Key : `file-${i}`, createdTime: String(i).padStart(6, "0"), fields: f }));
   const raw = Object.fromEntries(Object.entries(TABLES).map(([k, t]) => [k, asRecords(fields[k], t)]));
-  let rejected = [];
-  try {
-    rejected = fromAirtable(raw).rejected;
-  } catch (e) {
-    rejected = [{ table: TABLES.settings, key: "dashboard", reason: String(e.message) }];
-  }
+  // "עכשיו" של הקובץ: לפיו נבדק "לא אחרי עכשיו" (הוא לא נכתב ל-Airtable; בשרת הוא DEMO_NOW)
+  const { rejected } = fromAirtable(raw, data.now);
   const bad = new Set(rejected.map((r) => `${r.table}:${r.key}`));
   const desired = {};
   for (const [k, t] of Object.entries(TABLES)) {

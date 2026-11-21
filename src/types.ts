@@ -20,6 +20,8 @@ export interface Shipment {
 export interface DashboardData {
   date: string
   now: string
+  /** מאיפה "עכשיו": DEMO_NOW בשרת, או השעון של השרת */
+  nowSource?: "demo" | "clock"
   warehouses: Warehouse[]
   contractors: Contractor[]
   inventory: InventoryItem[]
