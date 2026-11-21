@@ -223,7 +223,7 @@ async function main() {
 
   if (!dryRun) {
     // אותה קריאה שהפונקציה עושה: אם אין שונות ואין מיותרות, הלוח צריך לראות בדיוק את הקובץ
-    const { data: back, rejected } = await loadDashboard({ baseId, token });
+    const { data: back, rejected } = await loadDashboard({ baseId, token, now: data.now });
     const clean = result.report.every((r) => r.differs === r.restored && r.extraInAirtable === 0);
     console.log(`\nקריאה חוזרת דרך אותו קוד של הלוח: ${rejected.length} רשומות לא תקינות` +
       (clean ? `, ${JSON.stringify(back) === JSON.stringify(data) ? "זהה לקובץ ✓" : "לא זהה לקובץ ✖"}` : " (יש שינויים ב-Airtable, ולכן לא משווים לקובץ)"));
