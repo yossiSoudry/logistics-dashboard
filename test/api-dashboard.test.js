@@ -74,7 +74,7 @@ test("רק קריאה: OPTIONS מחזיר 204 עם GET בלבד, ו-POST מקב�
 
 test("שגיאות של Airtable עוברות לאתר כסוג והודעה בעברית", async () => {
   for (const [status, kind] of [[401, "auth"], [403, "forbidden"], [429, "rate"], [500, "server"]]) {
-    const res = await handleDashboard(req(PAGES), env, async () => ({ ok: false, status, json: async () => ({}) }));
+    const res = await handleDashboard(req(PAGES), env, async () => ({ ok: false, status, json: async () => ({}) }), new Date(), { wait: async () => {} });
     assert.equal(res.status, 502, `${status}`);
     const body = await res.json();
     assert.equal(body.error.kind, kind);
