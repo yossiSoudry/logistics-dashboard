@@ -229,3 +229,22 @@ export function shabbatRows(warehouses, stops, shipments, now, warehouseId = "al
       return { ...base, state: "ready", stop: entry.stop, minutesLeft: minutesBetween(now, entry.stop.candles) };
     });
 }
+
+const TABLE_NOUN = { Shipments: ["משלוח", "משלוחים"], Inventory: ["פריט", "פריטים"], Warehouses: ["מחסן", "מחסנים"], Contractors: ["קבלן", "קבלנים"] };
+
+/**
+ * רשומות לא תקינות עם אותה טבלה ואותה סיבה בקבוצה אחת, לפי סדר ההופעה (SPEC.md, נתונים / הידיים).
+ * כך שם של סטטוס ששונה ב-Airtable נראה כבעיה אחת: "15 משלוחים", ולא כחמש-עשרה שורות.
+ */
+export function groupRejected(rejected) {
+  const groups = new Map();
+  for (const r of rejected) {
+    const id = `${r.table}\u0000${r.reason}`;
+    if (!groups.has(id)) groups.set(id, { table: r.table, reason: r.reason, keys: [] });
+    groups.get(id).keys.push(r.key);
+  }
+  return [...groups.values()].map((g) => {
+    const [one, many] = TABLE_NOUN[g.table] ?? ["רשומה", "רשומות"];
+    return { ...g, label: g.keys.length === 1 ? `${one} אחד` : `${g.keys.length} ${many}` };
+  });
+}
