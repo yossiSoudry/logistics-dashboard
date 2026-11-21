@@ -71,7 +71,7 @@ async function ensureSchema(api, baseId, { dryRun, log }) {
     const fieldDef = (f) =>
       f.link
         ? { name: f.name, type: "multipleRecordLinks", options: { linkedTableId: tableIds[f.link] } }
-        : { name: f.name, type: f.type, ...(f.options ? { options: f.options } : {}) };
+        : { name: f.name, type: f.type, ...(f.options ? { options: f.options } : {}), ...(f.description ? { description: f.description } : {}) };
     const found = existing.get(table.name);
     if (!found) {
       missing.push(table.name);

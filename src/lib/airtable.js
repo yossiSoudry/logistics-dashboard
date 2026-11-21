@@ -11,6 +11,10 @@ export const TABLES = {
   shipments: "Shipments",
 };
 
+/** התיאור של השדה Status ב-Airtable. */
+export const STATUS_FIELD_DESCRIPTION =
+  "לא לשנות את השמות של האפשרויות: הלוח מזהה סטטוס לפי השם, ומשלוח עם שם אחר לא נכנס ללוח. שינוי שם מתחיל בקוד (SPEC.md), ורק אחר כך כאן.";
+
 /** הסטטוסים נשמרים ב-Airtable בעברית, כדי שיהיה נוח לערוך אותם שם. */
 export const STATUS_TO_AIRTABLE = {
   pending: "ממתין",
@@ -59,6 +63,8 @@ export const SCHEMA = [
       {
         name: "Status",
         type: "singleSelect",
+        // התיאור מופיע ב-Airtable ליד השדה: מי שעורך רואה אותו (SPEC.md, נתונים / הידיים)
+        description: STATUS_FIELD_DESCRIPTION,
         options: { choices: Object.values(STATUS_TO_AIRTABLE).map((name) => ({ name })) },
       },
       { name: "Created At", ...DATE_TIME },
@@ -178,6 +184,12 @@ export function fromAirtable({ warehouses, contractors, inventory, shipments }, 
     return { sku, name: text(f.Name), warehouseId: w.id, quantity: f.Quantity, minimum: f.Minimum };
   });
 
+  // שם של אפשרות שהשתנה ב-Airtable: סטטוס מוכר נעלם לגמרי, ובמקומו הופיע אחד לא מוכר
+  const statusesSeen = new Set(shipments.map((r) => text(r.fields.Status)).filter(Boolean));
+  const unknownStatuses = [...statusesSeen].filter((s) => !STATUS_FROM_AIRTABLE[s]);
+  const missingStatuses = Object.values(STATUS_TO_AIRTABLE).filter((s) => !statusesSeen.has(s));
+  const renamedFrom = unknownStatuses.length === 1 && missingStatuses.length === 1 ? missingStatuses[0] : null;
+
   const shipmentRows = checkTable(TABLES.shipments, shipments, "ID", (f, id) => {
     if (!text(f.Customer)) return "חסר Customer";
     const w = link(f.Warehouse, warehouseRows, "מחסן");
@@ -185,7 +197,7 @@ export function fromAirtable({ warehouses, contractors, inventory, shipments }, 
     const c = link(f.Contractor, contractorRows, "קבלן");
     if (c.error) return c.error;
     const status = STATUS_FROM_AIRTABLE[f.Status];
-    if (!status) return f.Status ? `סטטוס לא מוכר: ${f.Status}` : "חסר Status";
+    if (!status) return f.Status ? unknownStatusReason(text(f.Status), renamedFrom) : "חסר Status";
     if (!f["Created At"]) return "חסר Created At";
     const createdAt = toLocalIso(f["Created At"]);
     if (createdAt > now) return "Created At אחרי \"עכשיו\"";
@@ -206,6 +218,12 @@ export function fromAirtable({ warehouses, contractors, inventory, shipments }, 
     },
     rejected,
   };
+}
+
+/** הסיבה לסטטוס לא מוכר: מה הסטטוסים המוכרים, וכשנראה ששם שונה, לאיזה שם להחזיר. */
+export function unknownStatusReason(name, renamedFrom = null) {
+  if (renamedFrom) return `סטטוס לא מוכר: "${name}". נראה שזה "${renamedFrom}" ששמו שונה ב-Airtable: מחזירים את השם "${renamedFrom}".`;
+  return `סטטוס לא מוכר: "${name}". הסטטוסים המוכרים: ${Object.values(STATUS_TO_AIRTABLE).join(", ")}.`;
 }
 
 // ---------------------------------------------------------------------------

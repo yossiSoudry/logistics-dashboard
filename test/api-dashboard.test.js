@@ -94,7 +94,7 @@ test("רשומות לא תקינות מגיעות לאתר עם טבלה, מפת
   const byTable = { Warehouses: raw.warehouses, Contractors: raw.contractors, Inventory: raw.inventory, Shipments: raw.shipments };
   const fetchImpl = async (url) => ({ ok: true, status: 200, json: async () => ({ records: byTable[decodeURIComponent(new URL(url).pathname.split("/").pop())] }) });
   const body = await (await handleDashboard(req(PAGES), env, fetchImpl)).json();
-  assert.deepEqual(body.rejected, [{ table: "Shipments", key: "SH-1000", reason: "סטטוס לא מוכר: אבד" }]);
+  assert.deepEqual(body.rejected, [{ table: "Shipments", key: "SH-1000", reason: 'סטטוס לא מוכר: "אבד". הסטטוסים המוכרים: ממתין, בדרך, נמסר, נכשל.' }]);
   assert.equal(body.data.shipments.length, data.shipments.length - 1);
   const err = await handleDashboard(req(PAGES), env, async () => ({ ok: false, status: 500, json: async () => ({}) }));
   assert.equal(err.headers.get("vercel-cdn-cache-control"), null);

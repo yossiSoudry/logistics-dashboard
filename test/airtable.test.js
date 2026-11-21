@@ -10,6 +10,7 @@ import {
   toLocalIso,
   fromLocalIso,
   fromAirtable,
+  STATUS_FIELD_DESCRIPTION,
 } from "../src/lib/airtable.js";
 
 const data = loadMockData();
@@ -100,7 +101,7 @@ test("תקין: סטטוס אחד מארבעה, ומשלוח לא אחרי \"ע�
   field(raw, "shipments", "SH-1002", "ID", { "Created At": "2026-11-08T17:00:00.000Z" }); // 19:00 בישראל, אחרי "עכשיו"
   const out = rejectedOf(raw);
   assert.deepEqual(out, [
-    "Shipments:SH-1000:סטטוס לא מוכר: אבד",
+    'Shipments:SH-1000:סטטוס לא מוכר: "אבד". הסטטוסים המוכרים: ממתין, בדרך, נמסר, נכשל.',
     'Shipments:SH-1002:Created At אחרי "עכשיו"',
   ]);
 });
@@ -163,4 +164,35 @@ test("מיקום (רשות): Geoname ID לא תקין משאיר את המחסן
   assert.deepEqual(back.warehouses.find((w) => w.id === "south"), { id: "south", name: "דרום" });
   assert.equal(back.inventory.length, data.inventory.length);
   assert.equal(back.shipments.length, data.shipments.length);
+});
+
+// ---- שם של סטטוס ששונה ב-Airtable (SPEC.md, נתונים / הכללים והידיים)
+
+test("\"בדרך\" ששמו שונה ל\"בתנועה\": כל המשלוחים שלו נדחים, והסיבה אומרת לאיזה שם להחזיר", () => {
+  const raw = fakeAirtable(data);
+  const moving = raw.shipments.filter((r) => r.fields.Status === "בדרך");
+  for (const r of moving) r.fields.Status = "בתנועה";
+  const { data: back, rejected } = fromAirtable(raw, data.now);
+  assert.equal(rejected.length, moving.length);
+  assert.ok(moving.length > 1);
+  for (const r of rejected) {
+    assert.equal(r.reason, 'סטטוס לא מוכר: "בתנועה". נראה שזה "בדרך" ששמו שונה ב-Airtable: מחזירים את השם "בדרך".');
+  }
+  assert.equal(back.shipments.length, data.shipments.length - moving.length);
+});
+
+test("סטטוס לא מוכר כשכל הסטטוסים המוכרים עדיין קיימים, או כשיש שניים לא מוכרים: בלי ניחוש", () => {
+  const raw = fakeAirtable(data);
+  field(raw, "shipments", "SH-1000", "ID", { Status: "אבד" });
+  field(raw, "shipments", "SH-1001", "ID", { Status: "הוחזר" });
+  for (const r of fromAirtable(raw, data.now).rejected) {
+    assert.match(r.reason, /הסטטוסים המוכרים: ממתין, בדרך, נמסר, נכשל\.$/);
+    assert.doesNotMatch(r.reason, /שונה/);
+  }
+});
+
+test("בשדה Status ב-Airtable כתוב שאסור לשנות את השמות", () => {
+  const status = SCHEMA.find((t) => t.name === "Shipments").fields.find((f) => f.name === "Status");
+  assert.equal(status.description, STATUS_FIELD_DESCRIPTION);
+  assert.match(STATUS_FIELD_DESCRIPTION, /לא לשנות את השמות/);
 });
